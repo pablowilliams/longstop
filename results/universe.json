@@ -1,0 +1,330 @@
+{
+  "episodes": 10051,
+  "labels": {
+    "completed": 7137,
+    "completed_shell": 48,
+    "terminated": 565,
+    "acquirer_side": 389,
+    "pending": 18,
+    "unresolved": 1023,
+    "not_registrant": 871
+  },
+  "resolved": 7750,
+  "break_events": 565,
+  "break_events_explicit": 565,
+  "completion_rate": 0.9271,
+  "completion_rate_denominator": 7750,
+  "shell_episodes": 304,
+  "operating_company_deals": {
+    "episodes": 9747,
+    "resolved": 7473,
+    "break_events": 563,
+    "completion_rate": 0.9247
+  },
+  "unresolved_share": 0.1018,
+  "excluded": {
+    "acquirer_side": 389,
+    "not_registrant": 871
+  },
+  "sign_to_close_days": {
+    "n": 7185,
+    "p10": 31,
+    "median": 72,
+    "p90": 261
+  },
+  "by_year": {
+    "2001": {
+      "completed": 386,
+      "not_registrant": 137,
+      "unresolved": 211,
+      "terminated": 5,
+      "acquirer_side": 2
+    },
+    "2002": {
+      "unresolved": 110,
+      "not_registrant": 105,
+      "completed": 242,
+      "acquirer_side": 15,
+      "terminated": 7
+    },
+    "2003": {
+      "unresolved": 67,
+      "completed": 269,
+      "not_registrant": 87,
+      "acquirer_side": 18,
+      "terminated": 21,
+      "completed_shell": 1
+    },
+    "2004": {
+      "terminated": 25,
+      "unresolved": 54,
+      "completed": 246,
+      "not_registrant": 90,
+      "acquirer_side": 14
+    },
+    "2005": {
+      "completed": 314,
+      "acquirer_side": 21,
+      "not_registrant": 92,
+      "unresolved": 45,
+      "terminated": 31,
+      "completed_shell": 2
+    },
+    "2006": {
+      "completed": 351,
+      "not_registrant": 84,
+      "unresolved": 70,
+      "terminated": 28,
+      "acquirer_side": 25,
+      "completed_shell": 7
+    },
+    "2007": {
+      "terminated": 47,
+      "completed": 421,
+      "unresolved": 50,
+      "not_registrant": 95,
+      "acquirer_side": 22,
+      "completed_shell": 9
+    },
+    "2008": {
+      "completed": 261,
+      "acquirer_side": 20,
+      "not_registrant": 38,
+      "unresolved": 58,
+      "terminated": 25,
+      "completed_shell": 4
+    },
+    "2009": {
+      "completed": 229,
+      "unresolved": 47,
+      "terminated": 18,
+      "acquirer_side": 24,
+      "not_registrant": 18,
+      "completed_shell": 2
+    },
+    "2010": {
+      "completed": 301,
+      "unresolved": 47,
+      "terminated": 28,
+      "not_registrant": 7,
+      "acquirer_side": 12,
+      "completed_shell": 2
+    },
+    "2011": {
+      "completed": 287,
+      "acquirer_side": 19,
+      "unresolved": 30,
+      "not_registrant": 21,
+      "terminated": 27,
+      "completed_shell": 2
+    },
+    "2012": {
+      "completed": 237,
+      "unresolved": 16,
+      "terminated": 19,
+      "not_registrant": 7,
+      "acquirer_side": 13,
+      "completed_shell": 1
+    },
+    "2013": {
+      "completed": 266,
+      "unresolved": 24,
+      "terminated": 17,
+      "not_registrant": 10,
+      "acquirer_side": 15,
+      "completed_shell": 1
+    },
+    "2014": {
+      "completed": 257,
+      "not_registrant": 6,
+      "acquirer_side": 19,
+      "terminated": 25,
+      "unresolved": 19,
+      "completed_shell": 2
+    },
+    "2015": {
+      "completed": 279,
+      "terminated": 24,
+      "unresolved": 17,
+      "acquirer_side": 15,
+      "not_registrant": 5
+    },
+    "2016": {
+      "completed": 318,
+      "unresolved": 23,
+      "terminated": 28,
+      "acquirer_side": 15,
+      "not_registrant": 9,
+      "completed_shell": 1
+    },
+    "2017": {
+      "completed": 268,
+      "terminated": 23,
+      "unresolved": 18,
+      "acquirer_side": 16,
+      "completed_shell": 1,
+      "not_registrant": 7
+    },
+    "2018": {
+      "completed": 278,
+      "acquirer_side": 18,
+      "unresolved": 16,
+      "terminated": 30,
+      "completed_shell": 2,
+      "not_registrant": 10
+    },
+    "2019": {
+      "completed": 254,
+      "terminated": 20,
+      "acquirer_side": 13,
+      "unresolved": 9,
+      "not_registrant": 2,
+      "completed_shell": 1
+    },
+    "2020": {
+      "completed": 220,
+      "acquirer_side": 8,
+      "unresolved": 20,
+      "not_registrant": 9,
+      "terminated": 23,
+      "completed_shell": 1
+    },
+    "2021": {
+      "completed": 336,
+      "terminated": 31,
+      "unresolved": 18,
+      "not_registrant": 12,
+      "acquirer_side": 14,
+      "completed_shell": 4
+    },
+    "2022": {
+      "completed": 290,
+      "terminated": 25,
+      "acquirer_side": 9,
+      "unresolved": 9,
+      "completed_shell": 3,
+      "not_registrant": 5
+    },
+    "2023": {
+      "completed": 268,
+      "terminated": 7,
+      "acquirer_side": 14,
+      "completed_shell": 1,
+      "unresolved": 17,
+      "not_registrant": 8
+    },
+    "2024": {
+      "completed": 279,
+      "terminated": 20,
+      "unresolved": 14,
+      "acquirer_side": 18,
+      "not_registrant": 5
+    },
+    "2025": {
+      "completed": 280,
+      "acquirer_side": 10,
+      "terminated": 11,
+      "unresolved": 14,
+      "not_registrant": 2,
+      "completed_shell": 1,
+      "pending": 18
+    }
+  },
+  "break_rate_by_year": {
+    "2001": 0.0128,
+    "2002": 0.0281,
+    "2003": 0.0722,
+    "2004": 0.0923,
+    "2005": 0.0893,
+    "2006": 0.0725,
+    "2007": 0.0985,
+    "2008": 0.0862,
+    "2009": 0.0723,
+    "2010": 0.0846,
+    "2011": 0.0854,
+    "2012": 0.0739,
+    "2013": 0.0599,
+    "2014": 0.088,
+    "2015": 0.0792,
+    "2016": 0.0807,
+    "2017": 0.0788,
+    "2018": 0.0968,
+    "2019": 0.0727,
+    "2020": 0.0943,
+    "2021": 0.0836,
+    "2022": 0.0786,
+    "2023": 0.0254,
+    "2024": 0.0669,
+    "2025": 0.0377
+  },
+  "announcement_forms": {
+    "SC 14D9/A": 7919,
+    "SC 13E3/A": 7574,
+    "DEFM14A": 5542,
+    "PREM14A": 4467,
+    "SC 14D9": 3016,
+    "SC 13E3": 2238,
+    "PREM14C": 573,
+    "DEFM14C": 387
+  },
+  "top_sic": {
+    "Pharmaceutical Preparations": 548,
+    "Services-Prepackaged Software": 493,
+    "Real Estate Investment Trusts": 453,
+    "Real Estate": 308,
+    "State Commercial Banks": 301,
+    "Services-Business Services, NEC": 293,
+    "Crude Petroleum & Natural Gas": 281,
+    "Blank Checks": 257,
+    "National Commercial Banks": 205,
+    "Savings Institution, Federally Chartered": 181,
+    "Semiconductors & Related Devices": 168,
+    "Biological Products, (No Diagnostic Substances)": 150,
+    "Surgical & Medical Instruments & Apparatus": 146,
+    "Services-Computer Integrated Systems Design": 130,
+    "Telephone Communications (No Radiotelephone)": 122
+  },
+  "item_code_coverage": {
+    "2001": 0.0256,
+    "2002": 0.0877,
+    "2003": 0.1274,
+    "2004": 0.2751,
+    "2005": 0.3723,
+    "2006": 0.4566,
+    "2007": 0.5419,
+    "2008": 0.5271,
+    "2009": 0.571,
+    "2010": 0.6625,
+    "2011": 0.6839,
+    "2012": 0.7713,
+    "2013": 0.6817,
+    "2014": 0.7927,
+    "2015": 0.8029,
+    "2016": 0.7741,
+    "2017": 0.8108,
+    "2018": 0.839,
+    "2019": 0.8863,
+    "2020": 0.7189,
+    "2021": 0.8072,
+    "2022": 0.8152,
+    "2023": 0.7683,
+    "2024": 0.7827,
+    "2025": 0.7857
+  },
+  "reliable_break_window": {
+    "first_usable_year": "2007",
+    "coverage_floor": 0.5,
+    "why": "Break detection depends on 8-K item 1.02. The numbered item scheme arrived during 2004, so earlier deals cannot carry the evidence and their break rate is an artefact. Completions are unaffected, because a deregistration is a form type rather than an item code.",
+    "right_censored_years": [
+      2025
+    ],
+    "data_cut": "2026-09-22"
+  },
+  "caveats": [
+    "Break detection depends on an 8-K item code, and the numbered item scheme arrived during 2004. Item evidence appears on 2.6% of 2001 episodes and over 75% from 2012, so any model using breaks should start from reliable_break_window.first_usable_year, not from 2001. Completions are unaffected.",
+    "The most recent years are right censored. A break is often only visible once the target has carried on reporting for a year, so deals announced recently are under-labelled by construction.",
+    "Break labels are candidates, not confirmed breaks. 8-K item 1.02 covers termination of any material definitive agreement, credit facilities included, so some of these terminated something other than the merger. One 2020 episode resolves four days after its definitive proxy, which is not a deal dying. Confirming each break against the 8-K text is the first job of phase one, and is cheap because breaks are rare.",
+    "Episodes labelled unresolved are ones where metadata cannot separate a tender offer that lapsed quietly from a buyer-side proxy. They are reported rather than assigned.",
+    "S-4 and 425 filings are excluded because their registrant is the acquirer. Deals where the target filed neither a proxy nor a 14D-9 are therefore outside this universe."
+  ]
+}
