@@ -95,3 +95,40 @@ def test_a_short_real_section_is_not_mistaken_for_a_listing():
     assert not _is_title_only(
         "Item 1.01.\n\nOn 1 March 2019 the Company entered into an Agreement and Plan of Merger."
     )
+
+
+# How a real filing lays a heading out once the HTML is flattened. Electronic
+# Clearing House reported the termination of its merger with Intuit exactly like
+# this, and a space-only whitespace class found no items in the document at all.
+WRAPPED_HEADING = """Section 1 - Registrant's Business and Operations
+
+Item
+1.02
+
+Termination
+of a Material Definitive
+Agreement
+
+On March 26, 2007, the Registrant mutually agreed with Intuit Inc. to terminate
+the Merger Agreement.
+"""
+
+
+def test_a_heading_split_across_lines_is_still_a_heading():
+    sections = item_sections(WRAPPED_HEADING)
+    assert "1.02" in sections
+    assert "mutually agreed with Intuit" in sections["1.02"]
+
+
+def test_a_mid_sentence_reference_is_not_a_heading():
+    # "described in this Item 1.02 of the terms" appears in the same filings and
+    # must not open a section.
+    prose = "The description contained in this Item 1.02 of the terms is qualified."
+    assert item_sections(prose) == {}
+
+
+def test_the_wrapped_heading_classifies():
+    from longstop.filings.breaks import CONFIRMED, classify
+
+    verdict = classify(item_sections(WRAPPED_HEADING).get("1.02"), WRAPPED_HEADING)
+    assert verdict.status == CONFIRMED

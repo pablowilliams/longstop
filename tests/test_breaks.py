@@ -196,3 +196,70 @@ def test_broadening_the_other_list_cannot_bury_a_real_break():
         "connection therewith the Company terminated its equity incentive plan."
     )
     assert classify(section).status == CONFIRMED
+
+
+@pytest.mark.parametrize(
+    "phrase",
+    [
+        # Amalgamation is what a merger is called in Canada and Bermuda, and a
+        # share exchange is one of the structures a merger takes. Both turned up
+        # repeatedly in the undecided bucket, which means real breaks were being
+        # thrown away for want of a synonym.
+        "the Amalgamation Agreement was terminated",
+        "the Share Exchange Agreement was terminated",
+        "the Agreement and Plan of Amalgamation was terminated",
+        "the Plan of Arrangement was terminated",
+    ],
+)
+def test_merger_synonyms_are_confirmed(phrase):
+    assert classify(f"Item 1.02 Termination.\n{phrase} by mutual consent.").status == CONFIRMED
+
+
+@pytest.mark.parametrize(
+    "phrase",
+    [
+        "the Company terminated the Lease for its headquarters",
+        "the Security Agreement was terminated on repayment",
+        "the Guaranty Agreement was terminated",
+        "the senior notes were terminated and repaid",
+    ],
+)
+def test_more_non_merger_instruments_are_decided(phrase):
+    assert classify(f"Item 1.02 Termination.\n{phrase}.").status == UNRELATED
+
+
+@pytest.mark.parametrize(
+    "section",
+    [
+        # Real shapes from the tail. None of these is worth its own pattern.
+        "Item 1.02 Termination.\nMr Kreider's Separation Agreement, dated 2004, "
+        "will terminate on his resignation.",
+        "Item 1.02 Termination.\nThe Company terminated the Collateral Protection "
+        "Agreement with JD Holdings.",
+        "Item 1.02 Termination.\nThe Partnership terminated the Macadamia Nut "
+        "Purchase Agreement with Mac Farms.",
+    ],
+)
+def test_a_specifically_named_instrument_with_no_merger_anywhere_is_not_a_break(section):
+    assert classify(section).status == UNRELATED
+
+
+def test_the_rule_does_not_fire_when_the_filing_mentions_a_merger_anywhere():
+    # Second reference in a merger filing is often just "the Agreement", and a
+    # rule that read a stray capitalised name as evidence would bury real breaks.
+    document = (
+        "The Company entered into an Agreement and Plan of Merger on 1 March.\n\n"
+        "Item 1.02 Termination.\nThe Escrow Agreement was terminated in connection "
+        "with the closing arrangements."
+    )
+    from longstop.filings.sections import item_sections
+
+    assert classify(item_sections(document)["1.02"], document).status != UNRELATED
+
+
+def test_generic_agreement_names_are_not_treated_as_distinguishing():
+    from longstop.filings.breaks import _named_instrument
+
+    assert _named_instrument("the Material Definitive Agreement was terminated") is None
+    assert _named_instrument("the Termination Agreement was signed") is None
+    assert _named_instrument("the Escrow Agreement was terminated") == "Escrow Agreement"

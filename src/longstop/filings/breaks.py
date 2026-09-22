@@ -25,10 +25,14 @@ UNCLEAR = "unclear"
 NO_DOCUMENT = "no_document"
 NO_SECTION = "no_section"
 
+# Amalgamation is what a merger is called in Canada and Bermuda, and a share
+# exchange is one of the structures a merger takes. Both appeared repeatedly in
+# the undecided bucket, which means they were breaks being thrown away.
 MERGER_AGREEMENT = re.compile(
-    r"\b(agreement and plan of (?:merger|reorganization)|merger agreement|"
+    r"\b(agreement and plan of (?:merger|reorganization|amalgamation|share exchange)|"
+    r"merger agreement|amalgamation agreement|share exchange agreement|"
     r"business combination agreement|arrangement agreement|"
-    r"scheme implementation (?:agreement|deed)|"
+    r"scheme implementation (?:agreement|deed)|plan of arrangement|"
     r"(?:the\s+)?transaction agreement)\b",
     re.IGNORECASE,
 )
@@ -55,7 +59,10 @@ OTHER_AGREEMENT = re.compile(
     r"investor rights agreement|registration rights agreement|"
     r"consulting agreement|advisory agreement|management agreement|"
     r"services agreement|joint venture agreement|"
-    r"purchase and sale agreement|asset purchase agreement)\b",
+    r"purchase and sale agreement|asset purchase agreement|"
+    r"lease(?: agreement| termination agreement)?|security agreement|"
+    r"guarant(?:y|ee) agreement|warrant plan|development agreement|"
+    r"promissory note|senior notes?|convertible notes?)\b",
     re.IGNORECASE,
 )
 
@@ -113,6 +120,26 @@ REASONS: dict[str, re.Pattern[str]] = {
 DEFINITION = re.compile(r"[\(\[]\s*(?:the|this)?\s*[\"\u201c\u2018\']([A-Z][A-Za-z0-9 &.\-]{1,60}?)[\"\u201d\u2019\']\s*[\)\]]")
 DEFINITION_LOOKBACK = 160
 
+# The tail of instrument names is genuinely open ended. This universe alone
+# produced a Separation Agreement, a Collateral Protection Agreement and a
+# Macadamia Nut Purchase Agreement, and enumerating those is overfitting rather
+# than engineering.
+#
+# So the last tier is a rule instead of a list: a capitalised, specifically named
+# instrument, in a filing whose text never mentions a merger agreement at all, is
+# not a deal break. The qualifier matters. "Agreement" and "Material Definitive
+# Agreement" are excluded because they are what a filing calls a merger agreement
+# on second reference, and treating those as evidence would bury real breaks.
+NAMED_INSTRUMENT = re.compile(
+    r"\b((?:[A-Z][A-Za-z&-]+ ){1,4}(?:Agreement|Plan|Notes?|Lease|Contract))\b"
+)
+NOT_DISTINGUISHING = re.compile(
+    r"^(?:the |this |such )?(?:material definitive|definitive|termination|"
+    r"merger|amalgamation|arrangement|business combination|share exchange|"
+    r"transaction)\b",
+    re.IGNORECASE,
+)
+
 BREAK_FEE = re.compile(
     r"(?:termination|break.?up|break)\s+fee[^.]{0,120}?\$\s?([\d,]+(?:\.\d+)?)\s*"
     r"(million|billion|thousand)?",
@@ -131,7 +158,7 @@ class Verdict:
 
 
 HEADING_LINE = re.compile(
-    r"^[ \t>*]*item[ \t]+\d{1,2}\.\d{2}[.\s]*"
+    r"^[ \t>*]*item\s*\d{1,2}\.\d{2}[.\s]*"
     r"(?:termination|entry)[^\n]*\n?",
     re.IGNORECASE,
 )
@@ -154,6 +181,16 @@ def body_of(section: str) -> str:
 def _first_match(pattern: re.Pattern[str], text: str) -> str | None:
     found = pattern.search(text)
     return found.group(0) if found else None
+
+
+def _named_instrument(text: str) -> str | None:
+    """A specifically named agreement, ignoring the generic ways of saying one."""
+    for match in NAMED_INSTRUMENT.finditer(text):
+        name = match.group(1).strip()
+        if NOT_DISTINGUISHING.match(name):
+            continue
+        return name
+    return None
 
 
 def defined_terms(document: str) -> tuple[frozenset[str], frozenset[str]]:
@@ -248,7 +285,12 @@ def classify(section: str | None, document: str | None = None) -> Verdict:
     elif other:
         status = UNRELATED
     else:
-        status = UNCLEAR
+        named = _named_instrument(text)
+        if named and not MERGER_AGREEMENT.search(document or text):
+            other = named
+            status = UNRELATED
+        else:
+            status = UNCLEAR
 
     reasons = tuple(name for name, pattern in REASONS.items() if pattern.search(text))
     evidence = tuple(x for x in (merger and f"merger:{merger}", other and f"other:{other}") if x)

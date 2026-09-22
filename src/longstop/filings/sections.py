@@ -27,7 +27,12 @@ from __future__ import annotations
 
 import re
 
-HEADING = re.compile(r"^[ \t>*]*item[ \t]+(\d{1,2}\.\d{2})\b", re.IGNORECASE | re.MULTILINE)
+# The whitespace between the word and the number has to allow newlines. Filings
+# lay headings out across several lines, "Item\n1.02\n\nTermination\nof a Material
+# Definitive\nAgreement", and a space-only class missed every one of them. The
+# line anchor still holds, so a mid-sentence "described in this Item 1.02" is not
+# mistaken for a heading.
+HEADING = re.compile(r"^[ \t>*]*item\s*(\d{1,2}\.\d{2})\b", re.IGNORECASE | re.MULTILINE)
 
 # A listing is a noun phrase: "Termination of a Material Definitive Agreement."
 # A narrative carries a date almost without exception: "On October 31, 2007 the
@@ -39,7 +44,7 @@ TITLE_ONLY_CHARS = 140
 # [^\n]* swallow the first line of the body, which made every section that began
 # with a sentence look empty.
 TITLE = re.compile(
-    r"^[ \t>*]*item[ \t]+\d{1,2}\.\d{2}[.\t ]*[^\n]*\n?", re.IGNORECASE
+    r"^[ \t>*]*item\s*\d{1,2}\.\d{2}[.\t ]*[^\n]*\n?", re.IGNORECASE
 )
 
 

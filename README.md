@@ -167,26 +167,48 @@ inside the usable window, across 5,523 resolved deals:
 | | candidates | as a share of resolved deals |
 |---|---|---|
 | raw item 1.02 label | 437 | 7.91% |
-| confirmed a merger died | 105 | 1.90% |
-| shown to be something else entirely | 160 | |
-| undecided, and left that way | 172 | |
+| confirmed a merger died | 121 | 2.19% |
+| shown to be something else entirely | 216 | |
+| undecided, and left that way | 100 | |
 
-**More than a third of the raw label is not a deal break.** It is employee stock
-option plans, equity forward contracts, revolving credit facilities and the sale
-of an apartment complex, all filed under the same item. A model trained on the
-raw label trains on a third noise, and its calibration would be measuring
-paperwork rather than deals.
+**Half of the raw label is not a deal break.** It is employee stock option plans,
+equity forward contracts, revolving credit facilities, an executive's separation
+agreement, the sale of an apartment complex and, in one case, a macadamia nut
+purchase agreement, all filed under the same item. A model trained on the raw
+label trains on half noise and calibrates against paperwork.
 
-What the check cannot do is manufacture certainty. The honest statement is that
-the break rate lies between 1.90% and 5.02% depending on the 172 undecided, and
-the upper bound sits at the low end of the published range. Some real breaks
-never file item 1.02 at all, which puts them among the unresolved rather than
-among the candidates, so the candidate set is a floor too. Both bounds are
-reported. Neither is split.
+Getting from 61% to 77% of candidates decided took four fixes, and the one worth
+naming is the smallest. Filings lay headings out across several lines:
 
-Among the confirmed breaks the stated reason was mutual agreement 17 times and
+```
+Item
+1.02
+
+Termination
+of a Material Definitive
+Agreement
+```
+
+A whitespace class that allowed spaces and tabs but not newlines found no items
+at all in those documents. Thirty of the thirty-nine unreadable filings were
+that, including Electronic Clearing House reporting the termination of its
+merger with Intuit. The others were merger synonyms the pattern list lacked,
+amalgamation and share exchange being what a merger is called in Canada and
+Bermuda, and a rule rather than a list for the open-ended tail of instrument
+names: a specifically named agreement, in a filing whose text never mentions a
+merger agreement anywhere, is not a deal break.
+
+What none of it can do is manufacture certainty. The honest statement is that the
+break rate lies between 2.19% and 4.00% depending on the 100 still undecided, and
+that the candidate set is itself a floor, because a break that never files item
+1.02 sits among the unresolved rather than among the candidates. Both bounds are
+reported and neither is split. The remaining undecided cases are where the
+language-model adapter belongs, behind the port that already exists for it, with
+the deterministic path keeping the benchmark reproducible without a key.
+
+Among the confirmed breaks the stated reason was mutual agreement 33 times and
 regulatory 11 times, with a superior proposal, a failed shareholder vote and a
-material adverse effect claim behind them.
+material adverse effect claim three times each.
 
 ### Extraction that checks itself
 
