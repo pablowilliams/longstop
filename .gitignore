@@ -6,3 +6,8 @@ __pycache__/
 data/cache/
 console/node_modules/
 console/dist/
+
+# Built from data/ by `make site`. The golden fixture the parity test reads is
+# committed; the bulk payload is regenerated rather than duplicated in git.
+console/public/data/*.json
+!console/public/data/golden-proforma.json

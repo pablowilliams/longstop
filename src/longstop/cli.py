@@ -47,6 +47,10 @@ def main(argv: list[str] | None = None) -> int:
     extract.add_argument("--model", default=None, help="model id for --extractor model")
     terms_sub.add_parser("report", help="coverage and reconciliation, from what is extracted")
 
+    site = sub.add_parser("site", help="build the static payload the dashboard reads")
+    site_sub = site.add_subparsers(dest="stage", required=True)
+    site_sub.add_parser("build", help="write console/public/data")
+
     breaks = sub.add_parser("breaks", help="confirm break candidates against their filings")
     breaks_sub = breaks.add_subparsers(dest="stage", required=True)
     confirm = breaks_sub.add_parser("confirm", help="read every break candidate's 8-K")
@@ -60,7 +64,11 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     try:
-        if args.command == "terms":
+        if args.command == "site":
+            from longstop.site import build_site_data
+
+            print(json.dumps(build_site_data(), indent=2))
+        elif args.command == "terms":
             from longstop.filings import deal_terms
 
             if args.stage == "extract":

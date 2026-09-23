@@ -1,7 +1,7 @@
 PY := python3
 export PYTHONPATH := src
 
-.PHONY: help setup test universe announcements outcomes breaks terms report \
+.PHONY: help setup test universe announcements outcomes breaks terms report site \
 	console-install console-build console-dev api clean
 
 help:
@@ -22,10 +22,13 @@ outcomes: ## stage two, label every deal from the target's later filings (needs 
 report: ## write results/universe.json
 	$(PY) -m longstop.cli universe report
 
+site: ## build the static payload the dashboard reads
+	$(PY) -m longstop.cli site build
+
 console-install: ## install the console's dependencies
 	cd console && npm install --no-audit --no-fund
 
-console-build: ## typecheck and build the console into console/dist
+console-build: site ## build the payload, typecheck, run the parity test, bundle
 	cd console && npm run build
 
 console-dev: ## the console with hot reload on :5173, proxying the API on :8000

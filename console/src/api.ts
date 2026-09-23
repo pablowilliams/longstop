@@ -160,40 +160,53 @@ export interface ProFormaResponse {
   decomposition: Decomposition;
 }
 
-async function json<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(path, {
-    ...init,
-    headers: { "Content-Type": "application/json", ...(init?.headers ?? {}) },
-  });
+// The published dashboard has no server. These files are built from the same
+// data the API serves, by `make site`, and are committed, so the numbers on the
+// page are the numbers in the repository rather than whatever a running process
+// happened to hold. The FastAPI app is still there for programmatic access.
+
+const BASE = import.meta.env.BASE_URL;
+
+async function file<T>(name: string): Promise<T> {
+  const response = await fetch(`${BASE}data/${name}`);
   if (!response.ok) {
-    let detail = response.statusText;
-    try {
-      const body = (await response.json()) as { detail?: unknown };
-      if (body.detail) detail = typeof body.detail === "string" ? body.detail : JSON.stringify(body.detail);
-    } catch {
-      // A non-JSON error body is still an error; the status text stands.
-    }
-    throw new Error(`${response.status}: ${detail}`);
+    throw new Error(
+      `${response.status} loading ${name}. Run \`make site\` to build the data files.`,
+    );
   }
   return (await response.json()) as T;
 }
 
+let dealsCache: DealRow[] | null = null;
+let breaksCache: BreakRow[] | null = null;
+
 export const api = {
-  summary: () => json<UniverseSummary>("/api/universe/summary"),
-  deals: (params: Record<string, string | number | undefined>) => {
-    const query = new URLSearchParams();
-    for (const [key, value] of Object.entries(params)) {
-      if (value !== undefined && value !== "") query.set(key, String(value));
+  summary: () => file<UniverseSummary>("summary.json"),
+
+  deals: async (params: {
+    label?: string;
+    q?: string;
+    limit?: number;
+    offset?: number;
+  }): Promise<DealPage> => {
+    dealsCache = dealsCache ?? (await file<DealRow[]>("deals.json"));
+    let rows = dealsCache;
+    if (params.label) rows = rows.filter((row) => row.label === params.label);
+    if (params.q) {
+      const needle = params.q.toLowerCase();
+      rows = rows.filter(
+        (row) =>
+          row.company.toLowerCase().includes(needle) ||
+          (row.tickers ?? []).join(" ").toLowerCase().includes(needle),
+      );
     }
-    return json<DealPage>(`/api/deals?${query.toString()}`);
+    const offset = params.offset ?? 0;
+    const limit = params.limit ?? 50;
+    return { total: rows.length, offset, limit, rows: rows.slice(offset, offset + limit) };
   },
-  breaks: (status?: string) =>
-    json<BreakRow[]>(`/api/breaks${status ? `?status=${encodeURIComponent(status)}` : ""}`),
-  proforma: (payload: {
-    acquirer: CompanyIn;
-    target: CompanyIn;
-    deal: DealIn;
-    samples?: number;
-    seed?: number;
-  }) => json<ProFormaResponse>("/api/proforma", { method: "POST", body: JSON.stringify(payload) }),
+
+  breaks: async (status?: string): Promise<BreakRow[]> => {
+    breaksCache = breaksCache ?? (await file<BreakRow[]>("breaks.json"));
+    return status ? breaksCache.filter((row) => row.status === status) : breaksCache;
+  },
 };

@@ -1,7 +1,13 @@
-import { useEffect, useMemo, useState } from "react";
-import { api, type CompanyIn, type DealIn, type ProFormaResponse } from "../api";
+import { useMemo, useState } from "react";
 import { ShareBars, Tornado } from "../components/charts";
 import { money, pp } from "../format";
+import {
+  build,
+  synergiesForBreakeven,
+  type Company as CompanyIn,
+  type Deal as DealIn,
+} from "../model/proforma";
+import { tornado, varianceDecomposition } from "../model/sensitivity";
 
 const ACQUIRER: CompanyIn = {
   net_income: 800e6,
@@ -61,26 +67,27 @@ const CONTROLS: Control[] = [
 
 export function ModelView() {
   const [deal, setDeal] = useState<DealIn>(BASE);
-  const [result, setResult] = useState<ProFormaResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
 
-  useEffect(() => {
-    let live = true;
-    setBusy(true);
-    api
-      .proforma({ acquirer: ACQUIRER, target: TARGET, deal, samples: 2000, seed: 0 })
-      .then((response) => {
-        if (live) {
-          setResult(response);
-          setError(null);
-        }
-      })
-      .catch((e: Error) => live && setError(e.message))
-      .finally(() => live && setBusy(false));
-    return () => {
-      live = false;
-    };
+  // Computed in the browser, from the model in src/model, which is checked
+  // against the Python implementation by src/model/__tests__/parity.test.ts on
+  // every build. No server, so the sliders are instant.
+  const result = useMemo(() => {
+    try {
+      setError(null);
+      const pro_forma = build(ACQUIRER, TARGET, deal);
+      return {
+        pro_forma: {
+          ...pro_forma,
+          synergies_for_breakeven: synergiesForBreakeven(ACQUIRER, TARGET, deal),
+        },
+        tornado: tornado(ACQUIRER, TARGET, deal),
+        decomposition: varianceDecomposition(ACQUIRER, TARGET, deal, undefined, 2000, 0),
+      };
+    } catch (e) {
+      setError((e as Error).message);
+      return null;
+    }
   }, [deal]);
 
   const tornadoRows = useMemo(
@@ -167,7 +174,7 @@ export function ModelView() {
             </div>
 
             <div className="panel" style={{ marginTop: 14 }}>
-              <h2>Sources and uses {busy && <span className="muted">updating</span>}</h2>
+              <h2>Sources and uses</h2>
               <table>
                 <tbody>
                   <tr><td>Equity purchase price</td><td className="num">{money(pf.sources_and_uses.equity_purchase_price)}</td></tr>
