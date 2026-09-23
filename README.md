@@ -1,7 +1,13 @@
 # Longstop
 
+[![ci](https://github.com/pablowilliams/longstop/actions/workflows/ci.yml/badge.svg)](https://github.com/pablowilliams/longstop/actions/workflows/ci.yml)
+
 **Do the deal protection terms predict the break, or has the market already
 priced them?**
+
+**[Open the dashboard](https://pablowilliams.github.io/longstop/)** to read the
+universe, the deal table, every break candidate with the text its verdict rests
+on, and the merger model with live assumptions.
 
 A longstop date is the deadline in a merger agreement by which the deal must
 close or either side can walk. This repository is built around what happens
@@ -346,8 +352,23 @@ runs to megabytes and one request at a time projected to over eight hours.
 
 ## The console
 
-Four views, typed against the API schemas so a field renamed on the server breaks
-the build rather than rendering as undefined. The universe and its outcomes by
+Published at
+[pablowilliams.github.io/longstop](https://pablowilliams.github.io/longstop/),
+as a static site with no server behind it. It reads the committed datasets and
+computes the merger model in the browser, so the numbers on the page are the
+numbers in the repository rather than whatever a running process happened to
+hold, and there is nothing to keep alive.
+
+That means the model exists twice. Python is the source of truth and writes its
+answers to a golden fixture; the TypeScript port is held to them by 104
+assertions that run before every bundle. Sources and uses, the solved break-even
+and the whole tornado are compared exactly. The variance decomposition is
+compared on ordering and magnitude, because the two languages do not share a
+random number generator and pretending otherwise would be a test that only
+looked strict.
+
+Four views, typed against the same schemas so a renamed field breaks the build
+rather than rendering as undefined. The universe and its outcomes by
 year, the deal table, every break candidate with the text its verdict was based
 on, and the merger model with a live assumption panel, a tornado and the variance
 decomposition. Charts are inline SVG.
