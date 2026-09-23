@@ -32,6 +32,7 @@ from longstop.edgar.submissions import Company, Filing, fetch_company
 import re
 
 from longstop.filings.confirm import primary_document
+from longstop.filings.extractors import Extractor, get_extractor
 from longstop.filings.terms import extract_terms, reconcile
 from longstop.universe import forms
 
@@ -92,7 +93,9 @@ def press_release(refs) -> object | None:
     return max(candidates, key=lambda r: r.size) if candidates else None
 
 
-def extract_from_proxy(client: EdgarClient, episode: dict) -> dict:
+def extract_from_proxy(
+    client: EdgarClient, episode: dict, extractor: Extractor | None = None
+) -> dict:
     """Read the merger proxy instead of the 8-K.
 
     The 8-K route was measured first because it is cheap, and it tops out at
@@ -120,13 +123,15 @@ def extract_from_proxy(client: EdgarClient, episode: dict) -> dict:
     if text is None:
         return {"status": NO_DOCUMENT, "accession": accession, "document": ref.name}
 
-    terms = extract_terms(text)
+    extractor = extractor or get_extractor("deterministic")
+    terms = extractor.extract(text)
     check = reconcile(terms)
     return {
         "status": EXTRACTED,
         "accession": accession,
         "document": ref.name,
         "source": "proxy",
+        "extractor": extractor.name,
         "chars": len(text),
         "terms": asdict(terms),
         "consideration": terms.consideration,
@@ -189,6 +194,7 @@ def extract_all(
     workers: int = WORKERS,
     limit: int | None = None,
     source: str = "8k",
+    extractor: Extractor | None = None,
 ) -> dict:
     episodes = [json.loads(line) for line in UNIVERSE.read_text().splitlines() if line]
     wanted = [e for e in episodes if e["label"] in labels]
@@ -217,7 +223,7 @@ def extract_all(
 
     def work(episode: dict) -> dict:
         if source == "proxy":
-            payload = extract_from_proxy(client, episode)
+            payload = extract_from_proxy(client, episode, extractor)
             row = {
                 "cik": episode["cik"], "company": episode["company"],
                 "announced": episode["announced"], "label": episode["label"], **payload,
@@ -291,6 +297,7 @@ def summarise_terms(rows: list[dict]) -> dict:
 
     with_release = sum(1 for r in extracted if r.get("press_release"))
     checks = Counter(r["reconciliation"]["status"] for r in extracted)
+    which = Counter(r.get("extractor", "deterministic") for r in extracted)
     checkable = checks["reconciled"] + checks["mismatch"]
     errors = sorted(
         r["reconciliation"]["absolute_error_pp"]
@@ -303,6 +310,7 @@ def summarise_terms(rows: list[dict]) -> dict:
         "field_coverage": coverage,
         "consideration": dict(Counter(r["consideration"] for r in extracted)),
         "with_press_release": with_release,
+        "extractor": dict(which),
         "reconciliation": dict(checks),
         "checkable": checkable,
         "reconciled_share_of_checkable": (

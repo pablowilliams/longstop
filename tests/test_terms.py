@@ -181,3 +181,29 @@ def test_the_baseline_detector_stops_at_the_sentence_end():
     # at a premium of 12.0% on average", and a window that ran past the full
     # stop labelled an ordinary premium to the close as an average.
     assert extract_terms(LONG_PROXY).premium_baseline == "close"
+
+
+def test_an_impossible_premium_is_not_a_premium():
+    # "300.0%" and "150.0%" came out of real proxies and are the pattern catching
+    # a percentage that merely sits near the word.
+    assert extract_terms("a 300.0% premium to the closing price").stated_premium_pct is None
+    assert extract_terms("a 96.0% premium to the closing price").stated_premium_pct == 96.0
+
+
+def test_an_unaffected_price_is_only_taken_beside_the_premium():
+    # In a stock deal the proxy discusses both companies' share prices, and a
+    # global search picked the acquirer's.
+    stray = """The acquirer's shares closed at a closing price of $73.01 in March.
+    Holders will receive $16.45 per share in cash."""
+    assert extract_terms(stray).unaffected_price is None
+
+
+def test_a_price_equal_to_the_consideration_is_a_collision_not_a_zero_premium():
+    from dataclasses import replace
+
+    terms = replace(
+        extract_terms(CASH_DEAL), cash_per_share=24.80, unaffected_price=24.80
+    )
+    result = reconcile(terms)
+    assert result.status == INSUFFICIENT
+    assert "misread" in result.note

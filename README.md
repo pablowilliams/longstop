@@ -259,6 +259,34 @@ where the language-model adapter behind the existing port earns its place. The
 deterministic path stays the default so the benchmark still reproduces without a
 key.
 
+### Two extractors, one check
+
+The patterns and a model sit behind the same interface and are scored by the same
+identity, so the comparison is objective rather than a matter of taste. The
+deterministic path is the default, needs no key and no spend, and is what keeps
+the benchmark reproducible.
+
+The model never sees the whole filing. A proxy is hundreds of pages of which two
+matter, and a model handed all of it has the same problem the patterns had, so
+the locator selects the passages where terms are stated and sends those. Measured
+over 59 real proxies:
+
+| | median | cost per deal | 5,523 deals |
+|---|---|---|---|
+| whole document | 480K chars | $0.65 | $3,617 |
+| located passages | 30K chars | $0.038 | $208 |
+
+A 96% reduction, and the smaller input is the better one. Booleans stay with the
+patterns: a single keyword is what a regular expression is better at, and paying
+tokens to re-derive it would buy worse answers.
+
+```bash
+longstop terms extract --source proxy                       # patterns, free
+longstop terms extract --source proxy --extractor model     # Claude, needs a key
+```
+
+Without credentials the model path refuses rather than failing partway.
+
 The premium is also not always quoted against the unaffected close. Some filings
 quote it against a thirty day average, which is a different quantity, so the
 baseline is recorded and the identity is not applied when it does not hold.

@@ -63,6 +63,13 @@ BASELINE_WINDOW = 200
 # the price globally instead picked whichever closing price the proxy mentioned
 # first, often a historical one from a different year.
 PREMIUM_CONTEXT = 320
+
+# Deal premiums live in a band. A "premium" of 300% is the pattern catching a
+# percentage that merely sits near the word, and admitting those put three
+# impossible figures into the reconciliation and made the error distribution
+# meaningless. The bound is deliberately loose: real premiums above 100% are rare
+# but they happen, and 200% is well clear of them.
+PREMIUM_CEILING_PCT = 200.0
 UNAFFECTED = re.compile(
     r"closing (?:sale |market )?price(?: per share)? of (?:[^.$]{0,80}?)\$\s?(\d{1,4}(?:\.\d{1,4})?)",
     re.IGNORECASE,
@@ -236,8 +243,12 @@ def extract_terms(text: str) -> Terms:
             continue
         premium_values[value] = premium_values.get(value, 0) + 1
         first_seen.setdefault(value, match)
-    if premium_values:
-        winner = max(premium_values, key=lambda v: premium_values[v])
+    plausible = {
+        value: count for value, count in premium_values.items()
+        if 0 < float(value) <= PREMIUM_CEILING_PCT
+    }
+    if plausible:
+        winner = max(plausible, key=lambda v: plausible[v])
         premium = float(winner)
         match = first_seen[winner]
         # Same sentence only. Reaching past the full stop picked up an
@@ -253,8 +264,11 @@ def extract_terms(text: str) -> Terms:
         exchange_ratio=float(ratio.group(1)) if ratio else None,
         stated_premium_pct=premium,
         premium_baseline=baseline,
-        unaffected_price=beside_premium if beside_premium is not None
-        else _modal_money(UNAFFECTED, flat),
+        # Only where the document states it beside the premium. The global
+        # fallback was picking the acquirer's share price in stock deals, and
+        # choosing it to fit the premium instead would have made the
+        # reconciliation agree with itself and test nothing.
+        unaffected_price=beside_premium,
         termination_fee_usd=_money(TERMINATION_FEE.search(flat)),
         parent_termination_fee_usd=_money(PARENT_FEE.search(flat)),
         equity_value_usd=_money(EQUITY_VALUE.search(flat)),
@@ -275,6 +289,12 @@ def reconcile(terms: Terms, tolerance_pp: float = 1.5) -> Reconciliation:
     """
     if terms.cash_per_share is None or terms.unaffected_price in (None, 0):
         return Reconciliation(INSUFFICIENT, note="no cash price or no unaffected price found")
+    if terms.cash_per_share == terms.unaffected_price:
+        # The price pattern matched the consideration itself. A deal struck at
+        # exactly no premium is vanishingly rare; a pattern collision is not.
+        return Reconciliation(
+            INSUFFICIENT, note="unaffected price equals the consideration, so one of them is a misread"
+        )
     if terms.stated_premium_pct is None:
         return Reconciliation(INSUFFICIENT, note="no stated premium found")
     if terms.premium_baseline == "average":

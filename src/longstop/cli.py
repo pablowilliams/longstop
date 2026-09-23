@@ -39,6 +39,12 @@ def main(argv: list[str] | None = None) -> int:
     extract.add_argument("--until", default=None)
     extract.add_argument("--limit", type=int, default=None)
     extract.add_argument("--source", choices=("8k", "proxy"), default="8k")
+    extract.add_argument(
+        "--extractor", choices=("deterministic", "model"), default="deterministic",
+        help="deterministic needs no key and no spend. model reads the located "
+             "passages with Claude and is measured by the same arithmetic check.",
+    )
+    extract.add_argument("--model", default=None, help="model id for --extractor model")
     terms_sub.add_parser("report", help="coverage and reconciliation, from what is extracted")
 
     breaks = sub.add_parser("breaks", help="confirm break candidates against their filings")
@@ -58,9 +64,23 @@ def main(argv: list[str] | None = None) -> int:
             from longstop.filings import deal_terms
 
             if args.stage == "extract":
+                from longstop.filings import extractors
+
+                if args.extractor == "model" and not extractors.has_credentials():
+                    print(
+                        "The model extractor needs credentials. Set ANTHROPIC_API_KEY, "
+                        "or run `ant auth login`, then try again.\n"
+                        "The deterministic extractor is the default and needs neither.",
+                        file=sys.stderr,
+                    )
+                    return 2
+                chosen = extractors.get_extractor(
+                    args.extractor,
+                    **({"model": args.model} if args.model and args.extractor == "model" else {}),
+                )
                 stats = deal_terms.extract_all(
                     EdgarClient(), since=args.since, until=args.until,
-                    limit=args.limit, source=args.source,
+                    limit=args.limit, source=args.source, extractor=chosen,
                 )
             else:
                 rows = [
