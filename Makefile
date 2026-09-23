@@ -1,7 +1,7 @@
 PY := python3
 export PYTHONPATH := src
 
-.PHONY: help setup test universe announcements outcomes breaks report \
+.PHONY: help setup test universe announcements outcomes breaks terms report \
 	console-install console-build console-dev api clean
 
 help:
@@ -33,6 +33,9 @@ console-dev: ## the console with hot reload on :5173, proxying the API on :8000
 
 api: ## serve the API, and the built console if there is one, on :8000
 	$(PY) -m uvicorn longstop.api.app:app --port 8000
+
+terms: ## extract deal terms from each deal's announcement 8-K (needs network)
+	$(PY) -m longstop.cli terms extract
 
 breaks: ## read every break candidate's 8-K and confirm it (needs network)
 	$(PY) -m longstop.cli breaks confirm

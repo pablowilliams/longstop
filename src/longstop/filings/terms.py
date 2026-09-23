@@ -37,10 +37,32 @@ EXCHANGE_RATIO = re.compile(
     r"(\d\.\d{2,6})\s+(?:validly issued,? fully paid.{0,40}?)?shares? of\b[^.]{0,80}?common stock",
     re.IGNORECASE,
 )
+# Both orders, because the dominant form in real press releases puts the number
+# first. Measured over two hundred deals, "premium of 20.5%" alone found the
+# figure 6.5% of the time; "a 28.6% premium" is what most filings actually write.
 PREMIUM = re.compile(
-    r"premium of (?:approximately |about |roughly )?(\d{1,3}(?:\.\d{1,2})?)\s?(?:%|percent)",
+    r"(?:premium of (?:approximately |about |roughly |nearly )?"
+    r"(?P<after>\d{1,3}(?:\.\d{1,2})?)\s?(?:%|percent)"
+    r"|(?:a |an )?(?:nearly |approximately |about )?"
+    r"(?P<before>\d{1,3}(?:\.\d{1,2})?)\s?(?:%|percent)\s+premium)",
     re.IGNORECASE,
 )
+
+# The baseline the premium is quoted against, which is not always the unaffected
+# close. A premium to a thirty day average is a different number, and checking a
+# consideration against it with the closing-price identity would be comparing two
+# things that were never equal.
+AVERAGE_BASELINE = re.compile(
+    r"(average|volume.weighted|vwap|\d{1,3}[- ](?:calendar |trading )?day)",
+    re.IGNORECASE,
+)
+BASELINE_WINDOW = 200
+
+# The premium and the price it is a premium to are stated in the same breath:
+# "a premium of 30.0% to the closing price of $45.00 on 14 February". Choosing
+# the price globally instead picked whichever closing price the proxy mentioned
+# first, often a historical one from a different year.
+PREMIUM_CONTEXT = 320
 UNAFFECTED = re.compile(
     r"closing (?:sale |market )?price(?: per share)? of (?:[^.$]{0,80}?)\$\s?(\d{1,4}(?:\.\d{1,4})?)",
     re.IGNORECASE,
@@ -88,6 +110,53 @@ def flatten(text: str) -> str:
     return re.sub(r"\s+", " ", text)
 
 
+def _modal(pattern: re.Pattern[str], text: str, group: int | str = 1) -> str | None:
+    """The value the document repeats, not the one it happens to mention first.
+
+    On a two page 8-K the first match is the deal. On a three hundred page proxy
+    it is usually a historical share price, an option exercise price or a figure
+    from a comparable company table, and taking it produced a median error of 110
+    percentage points against the document's own stated premium.
+
+    The merger consideration is restated on nearly every page. A stray price is
+    written once. Counting is therefore a better selector than position, and ties
+    go to whichever appeared first.
+    """
+    counts: dict[str, int] = {}
+    order: dict[str, int] = {}
+    for index, match in enumerate(pattern.finditer(text)):
+        try:
+            value = match.group(group)
+        except IndexError:
+            continue
+        if value is None:
+            continue
+        counts[value] = counts.get(value, 0) + 1
+        order.setdefault(value, index)
+    if not counts:
+        return None
+    return min(counts, key=lambda v: (-counts[v], order[v]))
+
+
+
+def _modal_money(pattern: re.Pattern[str], text: str) -> float | None:
+    value = _modal(pattern, text)
+    if value is None:
+        return None
+    try:
+        amount = float(value.replace(",", ""))
+    except ValueError:
+        return None
+    # Scale words are read from the first occurrence of the winning value, which
+    # is enough: a figure written "95" is written "95 million" everywhere it
+    # appears or nowhere.
+    found = re.search(
+        re.escape(value) + r"\s*(thousand|million|billion)?", text, re.IGNORECASE
+    )
+    scale = (found.group(1) or "") if found else ""
+    return amount * SCALE.get(scale.lower(), 1.0)
+
+
 def _money(match: re.Match[str] | None) -> float | None:
     """Amount times its scale word, for patterns that have one and those that do not.
 
@@ -110,6 +179,7 @@ class Terms:
     exchange_ratio: float | None = None
     stated_premium_pct: float | None = None
     unaffected_price: float | None = None
+    premium_baseline: str | None = None   # "close", "average", or None when unstated
     termination_fee_usd: float | None = None
     parent_termination_fee_usd: float | None = None
     equity_value_usd: float | None = None
@@ -155,11 +225,36 @@ def extract_terms(text: str) -> Terms:
     elif FINANCING_CONDITION.search(flat):
         financing = True
     ratio = EXCHANGE_RATIO.search(flat)
+    premium = None
+    baseline = None
+    beside_premium = None
+    premium_values: dict[str, int] = {}
+    first_seen: dict[str, re.Match[str]] = {}
+    for match in PREMIUM.finditer(flat):
+        value = match.group("after") or match.group("before")
+        if value is None:
+            continue
+        premium_values[value] = premium_values.get(value, 0) + 1
+        first_seen.setdefault(value, match)
+    if premium_values:
+        winner = max(premium_values, key=lambda v: premium_values[v])
+        premium = float(winner)
+        match = first_seen[winner]
+        # Same sentence only. Reaching past the full stop picked up an
+        # unrelated "on average" from the comparable companies discussion and
+        # mislabelled a perfectly ordinary premium to the close.
+        tail = flat[match.end(): match.end() + BASELINE_WINDOW]
+        context = tail.split(".")[0] if "." in tail else tail
+        baseline = "average" if AVERAGE_BASELINE.search(context) else "close"
+        nearby = flat[match.start(): match.end() + PREMIUM_CONTEXT]
+        beside_premium = _money(UNAFFECTED.search(nearby))
     return Terms(
-        cash_per_share=_money(CASH_PER_SHARE.search(flat)),
+        cash_per_share=_modal_money(CASH_PER_SHARE, flat),
         exchange_ratio=float(ratio.group(1)) if ratio else None,
-        stated_premium_pct=float(PREMIUM.search(flat).group(1)) if PREMIUM.search(flat) else None,
-        unaffected_price=_money(UNAFFECTED.search(flat)),
+        stated_premium_pct=premium,
+        premium_baseline=baseline,
+        unaffected_price=beside_premium if beside_premium is not None
+        else _modal_money(UNAFFECTED, flat),
         termination_fee_usd=_money(TERMINATION_FEE.search(flat)),
         parent_termination_fee_usd=_money(PARENT_FEE.search(flat)),
         equity_value_usd=_money(EQUITY_VALUE.search(flat)),
@@ -182,6 +277,13 @@ def reconcile(terms: Terms, tolerance_pp: float = 1.5) -> Reconciliation:
         return Reconciliation(INSUFFICIENT, note="no cash price or no unaffected price found")
     if terms.stated_premium_pct is None:
         return Reconciliation(INSUFFICIENT, note="no stated premium found")
+    if terms.premium_baseline == "average":
+        # A premium to a thirty day average is not the same quantity as a premium
+        # to the unaffected close, so the identity does not apply and saying so
+        # is better than reporting a mismatch that means nothing.
+        return Reconciliation(
+            INSUFFICIENT, note="premium quoted against an average, not the unaffected close"
+        )
 
     implied = 100 * (terms.cash_per_share / terms.unaffected_price - 1)
     error = abs(implied - terms.stated_premium_pct)

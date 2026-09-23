@@ -88,3 +88,96 @@ def test_a_stock_deal_has_no_cash_arithmetic_to_check_and_says_so():
 def test_the_parent_fee_is_not_mistaken_for_the_company_fee():
     terms = extract_terms(CASH_DEAL)
     assert terms.termination_fee_usd < terms.parent_termination_fee_usd
+
+
+# The wording real press releases use. Measured over two hundred deals, the
+# number comes before the word far more often than after it.
+NUMBER_FIRST = """Under the terms of the Merger, Carlyle will acquire all of the outstanding
+shares of Synagro for $5.76 per share in cash, representing a 28.6% premium
+based upon Synagro's closing share price on January 26, 2007.
+"""
+
+NEARLY = """Shareholders will receive stock and cash valued at $47.24 per share at the time
+of announcement, a nearly 30% premium to the closing share price on October 6,
+2006.
+"""
+
+AVERAGE_BASELINE_TEXT = """USI stockholders will receive $17.00 in cash for each share, representing a
+premium of 20.5% to the average closing share price for the 30 calendar days
+prior to October 24, 2006.
+"""
+
+
+def test_the_premium_is_read_when_the_number_comes_first():
+    assert extract_terms(NUMBER_FIRST).stated_premium_pct == 28.6
+    assert extract_terms(NEARLY).stated_premium_pct == 30.0
+
+
+def test_the_baseline_is_recorded_because_it_is_not_always_the_close():
+    assert extract_terms(NUMBER_FIRST).premium_baseline == "close"
+    assert extract_terms(AVERAGE_BASELINE_TEXT).premium_baseline == "average"
+
+
+def test_a_premium_to_an_average_is_not_checked_against_the_closing_price():
+    # The identity holds against the unaffected close. Checking a consideration
+    # against a thirty day average with it would compare two things that were
+    # never equal, and a mismatch reported that way would mean nothing.
+    from dataclasses import replace
+
+    terms = replace(extract_terms(AVERAGE_BASELINE_TEXT), unaffected_price=14.11)
+    result = reconcile(terms)
+    assert result.status == INSUFFICIENT
+    assert "average" in result.note
+
+
+def test_the_original_wording_still_works():
+    assert extract_terms(CASH_DEAL).stated_premium_pct == 30.0
+    assert reconcile(extract_terms(CASH_DEAL)).status == RECONCILED
+
+
+# A proxy runs to hundreds of pages and mentions many prices. The merger
+# consideration is restated on nearly every page; a historical price, an option
+# exercise price or a figure from a comparables table is written once. Taking the
+# first match produced a median error of 110 percentage points against the
+# document's own stated premium.
+LONG_PROXY = """
+The closing price of our common stock on 2 January 2014 was $12.40 per share.
+Options outstanding have an exercise price of $9.75 per share.
+
+Under the merger agreement each share will be converted into $58.50 per share in
+cash. The board recommends the $58.50 per share in cash consideration. Holders
+will receive $58.50 per share in cash, without interest.
+
+The consideration represents a premium of approximately 30.0% to the closing
+price of the Company's common stock of $45.00 on 14 February 2020.
+The comparable companies traded at a premium of 12.0% on average.
+"""
+
+
+def test_the_repeated_price_wins_over_the_first_one_mentioned():
+    terms = extract_terms(LONG_PROXY)
+    assert terms.cash_per_share == 58.50
+    assert terms.stated_premium_pct == 30.0
+
+
+def test_the_extraction_then_verifies_against_the_document():
+    assert extract_terms(LONG_PROXY).unaffected_price == 45.00
+    assert reconcile(extract_terms(LONG_PROXY)).status == RECONCILED
+
+
+def test_a_short_filing_is_unaffected_by_counting():
+    # One mention each, so position and frequency agree.
+    assert extract_terms(CASH_DEAL).cash_per_share == 58.50
+
+
+def test_the_unaffected_price_is_read_beside_the_premium_it_belongs_to():
+    # LONG_PROXY mentions a 2014 closing price of $12.40 before it states the
+    # deal's $45.00. Choosing globally took the earlier one.
+    assert extract_terms(LONG_PROXY).unaffected_price == 45.00
+
+
+def test_the_baseline_detector_stops_at_the_sentence_end():
+    # LONG_PROXY follows the premium sentence with "comparable companies traded
+    # at a premium of 12.0% on average", and a window that ran past the full
+    # stop labelled an ordinary premium to the close as an average.
+    assert extract_terms(LONG_PROXY).premium_baseline == "close"

@@ -210,7 +210,7 @@ Among the confirmed breaks the stated reason was mutual agreement 33 times and
 regulatory 11 times, with a superior proposal, a failed shareholder vote and a
 material adverse effect claim three times each.
 
-### Extraction that checks itself
+### Extraction that checks itself, and what it caught
 
 A merger proxy states the per-share consideration, the unaffected price and the
 premium, in three places hundreds of pages apart. They are arithmetically
@@ -221,9 +221,47 @@ premium = consideration / unaffected price - 1
 ```
 
 When the three extracted figures satisfy that identity, all three were read
-correctly and no annotator was needed to say so. When they do not, the
-extraction reports a mismatch instead of a number. That is what makes extraction
-accuracy measurable on real filings without a labelled set.
+correctly and no annotator was needed to say so. That makes extraction accuracy
+measurable on real filings without a labelled set, and the first thing it
+measured was that the extractor was wrong.
+
+**On the first proxy pilot, 16% of checkable extractions reconciled and the
+median error was 110 percentage points.** Not a near miss. On a two page 8-K the
+first `$X per share` in the document is the deal; on a three hundred page proxy
+it is a historical price, an option exercise price or a figure from a comparables
+table. The merger consideration is restated on nearly every page and a stray
+price is written once, so counting is a better selector than position. Taking the
+value the document repeats moved the median error from 110 points to 7.7 and the
+reconciled share from 16% to 43%.
+
+Two smaller faults surfaced the same way: the unaffected price was being chosen
+globally when it is stated in the same breath as the premium it belongs to, and
+the baseline detector read past a full stop and labelled an ordinary premium to
+the close as a premium to an average.
+
+Where the sources stand, measured rather than assumed, on the same deals:
+
+| field | from the 8-K | from the proxy |
+|---|---|---|
+| consideration identified | 65% | 92% |
+| termination fee | 36% | 60% |
+| equity value | 12% | 64% |
+| financing condition | 18% | 55% |
+| unaffected price | 2% | 44% |
+| outside date | 3% | 22% |
+
+The 8-K route was tried first because it is cheap, and it was worth running to
+learn that it tops out: only 38% of announcement 8-Ks attach the merger
+agreement at all. **43% of checkable proxy extractions now reconcile.** A
+deterministic extractor getting under half of them right is not a failure to
+hide, it is the boundary of what patterns can do on prose this varied, and it is
+where the language-model adapter behind the existing port earns its place. The
+deterministic path stays the default so the benchmark still reproduces without a
+key.
+
+The premium is also not always quoted against the unaffected close. Some filings
+quote it against a thirty day average, which is a different quantity, so the
+baseline is recorded and the identity is not applied when it does not hold.
 
 ### The merger model, and what actually drives it
 

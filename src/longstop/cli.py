@@ -32,6 +32,15 @@ def main(argv: list[str] | None = None) -> int:
     sample.add_argument("--n", type=int, default=30)
     sample.add_argument("--seed", type=int, default=0)
 
+    terms = sub.add_parser("terms", help="extract deal terms from announcement filings")
+    terms_sub = terms.add_subparsers(dest="stage", required=True)
+    extract = terms_sub.add_parser("extract", help="read each deal's announcement 8-K")
+    extract.add_argument("--since", default="2007-01-01")
+    extract.add_argument("--until", default=None)
+    extract.add_argument("--limit", type=int, default=None)
+    extract.add_argument("--source", choices=("8k", "proxy"), default="8k")
+    terms_sub.add_parser("report", help="coverage and reconciliation, from what is extracted")
+
     breaks = sub.add_parser("breaks", help="confirm break candidates against their filings")
     breaks_sub = breaks.add_subparsers(dest="stage", required=True)
     confirm = breaks_sub.add_parser("confirm", help="read every break candidate's 8-K")
@@ -45,7 +54,23 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     try:
-        if args.command == "breaks" and args.stage == "confirm":
+        if args.command == "terms":
+            from longstop.filings import deal_terms
+
+            if args.stage == "extract":
+                stats = deal_terms.extract_all(
+                    EdgarClient(), since=args.since, until=args.until,
+                    limit=args.limit, source=args.source,
+                )
+            else:
+                rows = [
+                    json.loads(line)
+                    for line in deal_terms.TERMS.read_text().splitlines()
+                    if line
+                ]
+                stats = deal_terms.summarise_terms(rows)
+            print(json.dumps(stats, indent=2))
+        elif args.command == "breaks" and args.stage == "confirm":
             from longstop.filings.confirm import confirm_all
 
             since = args.since
