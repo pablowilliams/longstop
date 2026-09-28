@@ -112,6 +112,69 @@ def golden_proforma() -> dict:
     return out
 
 
+def social_card(out_path: Path) -> Path:
+    """The link preview card, drawn from the summary rather than hand-made.
+
+    It carries the headline figures, and those have moved four times already, so
+    a card exported once by hand would be quoting a completion rate the project
+    no longer stands behind. It is regenerated with the rest of the payload.
+    """
+    from PIL import Image, ImageDraw, ImageFont
+
+    summary = json.loads((RESULTS / "universe.json").read_text())
+
+    width, height = 1200, 630
+    bg, panel, line = (15, 17, 21), (22, 26, 33), (38, 45, 56)
+    text, muted, accent, good = (230, 233, 239), (139, 149, 165), (106, 166, 255), (79, 191, 139)
+
+    def font(size: int, bold: bool = False):
+        candidates = (
+            f"/System/Library/Fonts/Supplemental/Arial{' Bold' if bold else ''}.ttf",
+            f"/usr/share/fonts/truetype/dejavu/DejaVuSans{'-Bold' if bold else ''}.ttf",
+            "/System/Library/Fonts/Helvetica.ttc",
+        )
+        for path in candidates:
+            try:
+                return ImageFont.truetype(path, size)
+            except OSError:
+                continue
+        return ImageFont.load_default()
+
+    image = Image.new("RGB", (width, height), bg)
+    draw = ImageDraw.Draw(image)
+
+    draw.text((72, 70), "Longstop", font=font(64, True), fill=text)
+    draw.text((72, 156), "Do deal protection terms predict the break?", font=font(34), fill=accent)
+    draw.text(
+        (72, 210),
+        "Outcomes derived from EDGAR filings rather than annotated,\n"
+        "and every break candidate confirmed against its own 8-K.",
+        font=font(26), fill=muted, spacing=12,
+    )
+
+    stats = [
+        (f"{summary['episodes']:,}", "deal episodes"),
+        (f"{summary['completion_rate'] * 100:.1f}%", "completion rate"),
+        (f"{summary['break_events']}", "break candidates"),
+        ("2001-2025", "US public targets"),
+    ]
+    left0, top, box_w, box_h, gap = 72, 350, 252, 132, 16
+    for index, (value, label) in enumerate(stats):
+        left = left0 + index * (box_w + gap)
+        draw.rounded_rectangle(
+            [left, top, left + box_w, top + box_h], radius=12, fill=panel, outline=line
+        )
+        draw.text((left + 22, top + 26), value, font=font(40, True), fill=good if index == 1 else text)
+        draw.text((left + 22, top + 84), label.upper(), font=font(18), fill=muted)
+
+    draw.line([72, 546, width - 72, 546], fill=line, width=1)
+    draw.text((72, 566), "pablowilliams.github.io/longstop", font=font(24), fill=muted)
+
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    image.save(out_path, optimize=True)
+    return out_path
+
+
 def build_site_data(out_dir: Path = SITE_DATA) -> dict:
     out_dir.mkdir(parents=True, exist_ok=True)
 
@@ -133,6 +196,9 @@ def build_site_data(out_dir: Path = SITE_DATA) -> dict:
         # Separators without spaces, because this ships over the wire.
         path.write_text(json.dumps(payload, separators=(",", ":")))
         written[name] = path.stat().st_size
+
+    card = social_card(out_dir.parent / "social-card.png")
+    written[card.name] = card.stat().st_size
 
     return {
         "written_to": str(out_dir),

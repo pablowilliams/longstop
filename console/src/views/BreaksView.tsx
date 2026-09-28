@@ -55,49 +55,51 @@ export function BreaksView() {
       </div>
 
       <div className="panel" style={{ marginTop: 14 }}>
-        <table>
-          <thead>
-            <tr>
-              <th>Target</th>
-              <th>Announced</th>
-              <th>Reported</th>
-              <th className="num">Days</th>
-              <th>Verdict</th>
-              <th>Reasons</th>
-              <th className="num">Fee</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows?.map((row) => {
-              const key = `${row.cik}-${row.announced}`;
-              return (
-                <Fragment key={key}>
-                  <tr onClick={() => setOpen(open === key ? null : key)} style={{ cursor: "pointer" }}>
-                    <td>{row.company}</td>
-                    <td className="mono">{row.announced}</td>
-                    <td className="mono">{row.resolved_on ?? "-"}</td>
-                    <td className="num">{row.days_to_resolution ?? ""}</td>
-                    <td>
-                      <span className={`tag ${row.status === "confirmed" ? "terminated" : "unresolved"}`}>
-                        {row.status.replace(/_/g, " ")}
-                      </span>
-                    </td>
-                    <td className="muted" style={{ fontSize: 12 }}>{row.reasons.join(", ")}</td>
-                    <td className="num">{row.break_fee_usd ? money(row.break_fee_usd) : ""}</td>
-                  </tr>
-                  {open === key && (
-                    <tr>
-                      <td colSpan={7}>
-                        <div className="excerpt">{row.excerpt || "No section text captured."}</div>
-                        {row.document && <p className="muted" style={{ fontSize: 11 }}>from {row.document}</p>}
+        <div className="scroll-x">
+          <table>
+            <thead>
+              <tr>
+                <th>Target</th>
+                <th>Announced</th>
+                <th>Reported</th>
+                <th className="num">Days</th>
+                <th>Verdict</th>
+                <th>Reasons</th>
+                <th className="num">Fee</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows?.map((row) => {
+                const key = `${row.cik}-${row.announced}`;
+                return (
+                  <Fragment key={key}>
+                    <tr onClick={() => setOpen(open === key ? null : key)} style={{ cursor: "pointer" }}>
+                      <td>{row.company}</td>
+                      <td className="mono">{row.announced}</td>
+                      <td className="mono">{row.resolved_on ?? "-"}</td>
+                      <td className="num">{row.days_to_resolution ?? ""}</td>
+                      <td>
+                        <span className={`tag ${row.status === "confirmed" ? "terminated" : "unresolved"}`}>
+                          {row.status.replace(/_/g, " ")}
+                        </span>
                       </td>
+                      <td className="muted" style={{ fontSize: 12 }}>{row.reasons.join(", ")}</td>
+                      <td className="num">{row.break_fee_usd ? money(row.break_fee_usd) : ""}</td>
                     </tr>
-                  )}
-                </Fragment>
-              );
-            })}
-          </tbody>
-        </table>
+                    {open === key && (
+                      <tr>
+                        <td colSpan={7}>
+                          <div className="excerpt">{row.excerpt || "No section text captured."}</div>
+                          {row.document && <p className="muted" style={{ fontSize: 11 }}>from {row.document}</p>}
+                        </td>
+                      </tr>
+                    )}
+                  </Fragment>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
         {rows && rows.length === 0 && (
           <p className="muted">Nothing here yet. Run <span className="mono">make breaks</span>.</p>
         )}

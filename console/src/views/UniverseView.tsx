@@ -85,15 +85,17 @@ export function UniverseView() {
             closing, renames and carries on filing, so its deal protection is a
             different instrument and mixing it in moves the break rate.
           </p>
-          <table>
-            <tbody>
-              <tr><td>Episodes</td><td className="num">{count(operating.episodes)}</td></tr>
-              <tr><td>Resolved</td><td className="num">{count(operating.resolved)}</td></tr>
-              <tr><td>Break candidates</td><td className="num">{count(operating.break_events)}</td></tr>
-              <tr><td>Completion rate</td><td className="num">{pct(operating.completion_rate)}</td></tr>
-              <tr><td>Blank-cheque episodes held out</td><td className="num">{count(data.shell_episodes)}</td></tr>
-            </tbody>
-          </table>
+          <div className="scroll-x">
+            <table>
+              <tbody>
+                <tr><td>Episodes</td><td className="num">{count(operating.episodes)}</td></tr>
+                <tr><td>Resolved</td><td className="num">{count(operating.resolved)}</td></tr>
+                <tr><td>Break candidates</td><td className="num">{count(operating.break_events)}</td></tr>
+                <tr><td>Completion rate</td><td className="num">{pct(operating.completion_rate)}</td></tr>
+                <tr><td>Blank-cheque episodes held out</td><td className="num">{count(data.shell_episodes)}</td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
         <div className="panel">
           <h2>What this universe does not claim</h2>
@@ -106,23 +108,27 @@ export function UniverseView() {
       <div className="grid two" style={{ marginTop: 14 }}>
         <div className="panel">
           <h2>Announcement forms</h2>
-          <table>
-            <tbody>
-              {Object.entries(data.announcement_forms ?? {}).slice(0, 10).map(([form, n]) => (
-                <tr key={form}><td className="mono">{form}</td><td className="num">{count(n)}</td></tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="scroll-x">
+            <table>
+              <tbody>
+                {Object.entries(data.announcement_forms ?? {}).slice(0, 10).map(([form, n]) => (
+                  <tr key={form}><td className="mono">{form}</td><td className="num">{count(n)}</td></tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
         <div className="panel">
           <h2>Where the targets come from</h2>
-          <table>
-            <tbody>
-              {Object.entries(data.top_sic ?? {}).slice(0, 10).map(([sic, n]) => (
-                <tr key={sic}><td>{sic}</td><td className="num">{count(n)}</td></tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="scroll-x">
+            <table>
+              <tbody>
+                {Object.entries(data.top_sic ?? {}).slice(0, 10).map(([sic, n]) => (
+                  <tr key={sic}><td>{sic}</td><td className="num">{count(n)}</td></tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </>

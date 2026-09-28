@@ -48,6 +48,11 @@ nav.tabs button[aria-current="true"] { color: var(--text); border-bottom-color: 
 h2 { font-size: 14px; margin: 0 0 12px; letter-spacing: 0.01em; }
 h3 { font-size: 13px; margin: 18px 0 8px; color: var(--muted); font-weight: 600; }
 
+/* A six column table cannot fit a phone. It scrolls inside its panel rather
+   than pushing the whole page sideways, which is what it did before. */
+.scroll-x { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.scroll-x table { min-width: 620px; }
+
 table { width: 100%; border-collapse: collapse; font-size: 13px; }
 th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--line); }
 th { color: var(--muted); font-weight: 600; font-size: 12px; }
@@ -84,3 +89,19 @@ button.ghost:disabled { opacity: 0.5; cursor: default; }
 .mono { font-family: var(--mono); }
 .excerpt { font-size: 12px; color: var(--muted); font-family: var(--mono); white-space: pre-wrap; }
 footer.note { color: var(--muted); font-size: 12px; margin-top: 28px; border-top: 1px solid var(--line); padding-top: 12px; }
+
+@media (max-width: 640px) {
+  .shell { padding: 16px 16px 48px; }
+  header.top h1 { font-size: 18px; }
+  header.top .sub { font-size: 12px; }
+
+  /* The tab bar scrolls instead of wrapping onto two lines. */
+  nav.tabs { overflow-x: auto; scrollbar-width: none; }
+  nav.tabs::-webkit-scrollbar { display: none; }
+  nav.tabs button { white-space: nowrap; padding: 8px 10px; }
+
+  .panel { padding: 14px; }
+  .stat .value { font-size: 20px; }
+  .controls input, .controls select { flex: 1 1 100%; }
+  th, td { padding: 6px 8px; }
+}

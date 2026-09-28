@@ -175,26 +175,28 @@ export function ModelView() {
 
             <div className="panel" style={{ marginTop: 14 }}>
               <h2>Sources and uses</h2>
-              <table>
-                <tbody>
-                  <tr><td>Equity purchase price</td><td className="num">{money(pf.sources_and_uses.equity_purchase_price)}</td></tr>
-                  <tr><td>Target debt refinanced</td><td className="num">{money(pf.sources_and_uses.target_debt_refinanced)}</td></tr>
-                  <tr><td>Transaction fees</td><td className="num">{money(pf.sources_and_uses.transaction_fees)}</td></tr>
-                  <tr><td><b>Total uses</b></td><td className="num"><b>{money(pf.sources_and_uses.total_uses)}</b></td></tr>
-                  <tr><td>Cash from balance sheet</td><td className="num">{money(pf.sources_and_uses.cash_from_balance_sheet)}</td></tr>
-                  <tr><td>New debt</td><td className="num">{money(pf.sources_and_uses.new_debt)}</td></tr>
-                  <tr><td>New equity issued</td><td className="num">{money(pf.sources_and_uses.new_equity)}</td></tr>
-                  <tr><td>Target cash acquired</td><td className="num">{money(pf.sources_and_uses.target_cash_acquired)}</td></tr>
-                  <tr><td><b>Total sources</b></td><td className="num"><b>{money(pf.sources_and_uses.total_sources)}</b></td></tr>
-                  <tr>
-                    <td>Balances</td>
-                    <td className="num" style={{ color: pf.sources_and_uses.balances ? "var(--good)" : "var(--bad)" }}>
-                      {pf.sources_and_uses.balances ? "yes" : "no"}
-                    </td>
-                  </tr>
-                  <tr><td>Goodwill</td><td className="num">{money(pf.goodwill)}</td></tr>
-                </tbody>
-              </table>
+              <div className="scroll-x">
+                <table>
+                  <tbody>
+                    <tr><td>Equity purchase price</td><td className="num">{money(pf.sources_and_uses.equity_purchase_price)}</td></tr>
+                    <tr><td>Target debt refinanced</td><td className="num">{money(pf.sources_and_uses.target_debt_refinanced)}</td></tr>
+                    <tr><td>Transaction fees</td><td className="num">{money(pf.sources_and_uses.transaction_fees)}</td></tr>
+                    <tr><td><b>Total uses</b></td><td className="num"><b>{money(pf.sources_and_uses.total_uses)}</b></td></tr>
+                    <tr><td>Cash from balance sheet</td><td className="num">{money(pf.sources_and_uses.cash_from_balance_sheet)}</td></tr>
+                    <tr><td>New debt</td><td className="num">{money(pf.sources_and_uses.new_debt)}</td></tr>
+                    <tr><td>New equity issued</td><td className="num">{money(pf.sources_and_uses.new_equity)}</td></tr>
+                    <tr><td>Target cash acquired</td><td className="num">{money(pf.sources_and_uses.target_cash_acquired)}</td></tr>
+                    <tr><td><b>Total sources</b></td><td className="num"><b>{money(pf.sources_and_uses.total_sources)}</b></td></tr>
+                    <tr>
+                      <td>Balances</td>
+                      <td className="num" style={{ color: pf.sources_and_uses.balances ? "var(--good)" : "var(--bad)" }}>
+                        {pf.sources_and_uses.balances ? "yes" : "no"}
+                      </td>
+                    </tr>
+                    <tr><td>Goodwill</td><td className="num">{money(pf.goodwill)}</td></tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
 
             <div className="panel" style={{ marginTop: 14 }}>

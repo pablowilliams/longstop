@@ -10,3 +10,6 @@ uvicorn>=0.27
 # one of them installed hid it completely.
 httpx>=0.27
 httpx2>=2.13
+
+# The social card is drawn from the summary so its figures cannot go stale.
+pillow>=10.0

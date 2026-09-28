@@ -11,3 +11,5 @@ console/dist/
 # committed; the bulk payload is regenerated rather than duplicated in git.
 console/public/data/*.json
 !console/public/data/golden-proforma.json
+# Drawn from results/universe.json by `make site`, so it cannot quote a stale rate.
+console/public/social-card.png

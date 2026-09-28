@@ -74,34 +74,36 @@ export function DealsView() {
 
       {error && <p className="err">{error}</p>}
 
-      <table>
-        <thead>
-          <tr>
-            <th>Target</th>
-            <th>Announced</th>
-            <th>Label</th>
-            <th>Resolved</th>
-            <th className="num">Days</th>
-            <th>Evidence</th>
-          </tr>
-        </thead>
-        <tbody>
-          {page?.rows.map((row) => (
-            <tr key={`${row.cik}-${row.announced}`}>
-              <td>
-                {row.company}
-                {row.tickers.length > 0 && <span className="muted mono"> {row.tickers[0]}</span>}
-                {row.shell && <span className="tag" style={{ marginLeft: 6 }}>shell</span>}
-              </td>
-              <td className="mono">{row.announced}</td>
-              <td><span className={`tag ${row.label}`}>{row.label.replace(/_/g, " ")}</span></td>
-              <td className="mono">{row.resolved_on ?? "-"}</td>
-              <td className="num">{row.days_to_resolution ?? ""}</td>
-              <td className="muted mono" style={{ fontSize: 11 }}>{row.evidence.join(" ")}</td>
+      <div className="scroll-x">
+        <table>
+          <thead>
+            <tr>
+              <th>Target</th>
+              <th>Announced</th>
+              <th>Label</th>
+              <th>Resolved</th>
+              <th className="num">Days</th>
+              <th>Evidence</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {page?.rows.map((row) => (
+              <tr key={`${row.cik}-${row.announced}`}>
+                <td>
+                  {row.company}
+                  {row.tickers.length > 0 && <span className="muted mono"> {row.tickers[0]}</span>}
+                  {row.shell && <span className="tag" style={{ marginLeft: 6 }}>shell</span>}
+                </td>
+                <td className="mono">{row.announced}</td>
+                <td><span className={`tag ${row.label}`}>{row.label.replace(/_/g, " ")}</span></td>
+                <td className="mono">{row.resolved_on ?? "-"}</td>
+                <td className="num">{row.days_to_resolution ?? ""}</td>
+                <td className="muted mono" style={{ fontSize: 11 }}>{row.evidence.join(" ")}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
       {page && page.rows.length === 0 && <p className="muted">Nothing matches that filter.</p>}
     </div>
   );
