@@ -327,6 +327,73 @@ First-order shares come from squared standardised regression coefficients, exact
 for a linear model and an approximation otherwise, so the R squared of that fit
 is reported next to them.
 
+## The model, and the feature that was the outcome in disguise
+
+The first version looked respectable: AUC 0.70, an odds ratio of 11.4 on whether
+the target had a ticker. Then the ticker turned out to be the answer.
+
+The submissions API reports a company's **current** listing status. A target that
+was acquired delisted and has no ticker; one whose deal broke is still trading
+and still has one. Measured: 39.7% of breaks carried a ticker against 5.1% of
+completions. The leakage guard did not catch it because `tickers` is not
+obviously an outcome field, which is exactly what makes that class of leak
+dangerous.
+
+Removing it:
+
+| | with the leak | without |
+|---|---|---|
+| AUC | 0.702 [0.608, 0.796] | **0.512 [0.438, 0.598]** |
+| Brier skill over base rate | +0.007 | **-0.006** |
+
+The interval straddles 0.5 and the skill score is negative. **All of the apparent
+signal was the leak.** A second feature went the same way: the break fee as a
+share of equity value had a median of 180% and a maximum of 3e14%, because the
+extractor had paired a fee with the wrong number somewhere in three hundred
+pages. Bounded to the range a termination fee can actually occupy, it keeps 1,137
+deals with a median of 3.7%, which is where real break fees sit.
+
+### So do the terms predict the break?
+
+**Not answered, and the honest word is underpowered rather than no.** The terms
+model has 601 complete cases and 14 events, 2.8 per parameter against a rule of
+thumb of ten, and its likelihood ratio test comes out at p = 0.75. A model that
+cannot detect an effect is not evidence there is none.
+
+What does carry information is deal structure, and weakly. Tender offers break
+less often than one-step mergers (odds ratio 0.37, interval 0.20 to 0.68) and so
+do going-private deals (0.49, 0.28 to 0.88), on 121 events with the model
+significant at p = 2.4e-05. But pseudo-R squared is 0.021 and none of it survives
+into out-of-sample discrimination, which is the difference between a correlation
+and a forecast.
+
+### Competing risks, because a deal that closes cannot then break
+
+| broken by day 730 | |
+|---|---|
+| naive Kaplan-Meier | **17.8%** |
+| cumulative incidence | **2.2%** |
+
+Kaplan-Meier on breaks alone implicitly asks what would happen if deals could not
+close, and overstates the risk eight-fold. Both are reported side by side. The
+Cox model is cause-specific and its proportional hazards assumption is tested
+rather than assumed.
+
+### Conformal prediction, and what a guarantee is worth
+
+Coverage guarantees are **marginal**: they promise coverage averaged over all
+deals. At a 2.6% base rate that is nearly vacuous, and measured here the marginal
+method reaches **97.4% coverage overall while covering 0.0% of breaks**. It
+satisfies the guarantee by being right about completions and blind to the only
+outcome anyone cares about. Class-conditional thresholds reach 88.6% on breaks
+and 89.6% on completions against 90% asked for.
+
+Conformal also detected something nothing else here could. Its one assumption is
+exchangeability, and training on the past to predict the future violates it by
+construction. Under the time split, coverage on completions falls to 74.7%;
+under a random split, which restores exchangeability, it is 91.2%. The method is
+not broken. The world moved, and the gap measures it.
+
 ## Run it
 
 ```bash

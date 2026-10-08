@@ -15,7 +15,7 @@ from longstop.model.features import build_frame
 REPO_ROOT = Path(__file__).resolve().parents[3]
 RESULTS = REPO_ROOT / "results"
 
-ALWAYS_AVAILABLE = ["tender_offer_filing", "going_private", "shell", "listed"]
+ALWAYS_AVAILABLE = ["tender_offer_filing", "going_private", "shell"]
 DEAL_TERMS = ["break_fee_pct", "financing_condition", "hsr", "stated_premium_pct"]
 
 

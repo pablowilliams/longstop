@@ -31,7 +31,7 @@ from lifelines.statistics import proportional_hazard_test
 # stragglers; the curve is reported to here so the tail does not mislead.
 HORIZON_DAYS = 900
 
-COVARIATES = ["tender_offer_filing", "going_private", "shell", "listed"]
+COVARIATES = ["tender_offer_filing", "going_private", "shell"]
 TERM_COVARIATES = ["break_fee_pct", "financing_condition", "hsr", "stated_premium_pct"]
 
 

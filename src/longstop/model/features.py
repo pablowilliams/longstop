@@ -39,7 +39,21 @@ FLAG_FIELDS = ("financing_condition", "go_shop", "hsr", "cfius", "tender_offer")
 LEAKY = frozenset({
     "resolved_on", "days_to_resolution", "resolved_accession", "resolved_form",
     "resolved_document", "evidence", "label",
+    # Not obviously an outcome, which is exactly why it got through. The
+    # submissions API reports a company's CURRENT tickers. A target that was
+    # acquired delisted and has none; one whose deal broke is still trading and
+    # still has them. Measured: 39.7% of breaks carried a ticker against 5.1% of
+    # completions, and the logit duly reported an odds ratio of 11.4. That is
+    # the outcome wearing a disguise.
+    "listed", "tickers", "exchanges",
 })
+
+# A termination fee is one to four per cent of equity value. Anything outside
+# this band is the extractor having paired a fee with the wrong number in a three
+# hundred page document, not an unusual deal. Half the computed values exceeded
+# 100% and the largest was 3e14%, so the feature was noise and a model finding
+# nothing in it was finding nothing in noise.
+BREAK_FEE_PCT_MAX = 20.0
 
 
 def _read(name: str) -> list[dict]:
@@ -110,7 +124,7 @@ def build_frame(
             "tender_offer_filing": int("14D9" in forms or "TO-T" in forms),
             "going_private": int("13E3" in forms),
             "shell": int(bool(episode.get("shell"))),
-            "listed": int(bool(episode.get("tickers"))),
+
         }
 
         extracted = terms.get(key)
@@ -121,7 +135,10 @@ def build_frame(
             for field in FLAG_FIELDS:
                 flag = values.get(field)
                 row[field] = None if flag is None else int(bool(flag))
-            row["break_fee_pct"] = extracted.get("break_fee_pct")
+            fee_pct = extracted.get("break_fee_pct")
+            row["break_fee_pct"] = (
+                fee_pct if fee_pct is not None and 0 < fee_pct <= BREAK_FEE_PCT_MAX else None
+            )
             row["consideration"] = extracted.get("consideration") or "unknown"
             row["has_terms"] = 1
         else:

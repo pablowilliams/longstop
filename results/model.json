@@ -2,7 +2,7 @@
   "frame": {
     "deals": 5207,
     "confirmed_breaks": 121,
-    "with_extracted_terms": 1272,
+    "with_extracted_terms": 5180,
     "excluded": "Episodes labelled terminated whose 8-K did not confirm a merger termination are dropped rather than counted either way, because their real outcome is unknown."
   },
   "survival": {
@@ -35,80 +35,73 @@
       "fitted": true,
       "n": 5509,
       "events": 124,
-      "events_per_covariate": 31.0,
-      "concordance": 0.7154,
+      "events_per_covariate": 41.3,
+      "concordance": 0.5877,
       "penalizer": 0.1,
       "hazard_ratios": {
         "tender_offer_filing": {
-          "hazard_ratio": 0.9099,
-          "ci_low": 0.7497,
-          "ci_high": 1.1043,
-          "p": 0.3391
+          "hazard_ratio": 0.9073,
+          "ci_low": 0.7477,
+          "ci_high": 1.1009,
+          "p": 0.3242
         },
         "going_private": {
-          "hazard_ratio": 0.8834,
-          "ci_low": 0.7242,
-          "ci_high": 1.0775,
-          "p": 0.2211
+          "hazard_ratio": 0.8784,
+          "ci_low": 0.7204,
+          "ci_high": 1.0711,
+          "p": 0.2001
         },
         "shell": {
-          "hazard_ratio": 0.9012,
-          "ci_low": 0.6244,
-          "ci_high": 1.3006,
-          "p": 0.5783
-        },
-        "listed": {
-          "hazard_ratio": 1.8472,
-          "ci_low": 1.421,
-          "ci_high": 2.4012,
-          "p": 0.0
+          "hazard_ratio": 0.8993,
+          "ci_low": 0.6233,
+          "ci_high": 1.2975,
+          "p": 0.5704
         }
       },
       "proportional_hazards_p": {
-        "going_private": 0.8826,
-        "listed": 0.4263,
-        "shell": 0.851,
-        "tender_offer_filing": 0.8438
+        "going_private": 0.8904,
+        "shell": 0.8572,
+        "tender_offer_filing": 0.8615
       }
     },
     "hazard_with_terms": {
       "fitted": true,
-      "n": 341,
-      "events": 12,
-      "events_per_covariate": 3.0,
-      "concordance": 0.6614,
+      "n": 601,
+      "events": 14,
+      "events_per_covariate": 3.5,
+      "concordance": 0.6996,
       "penalizer": 0.1,
       "hazard_ratios": {
         "break_fee_pct": {
-          "hazard_ratio": 1.0,
-          "ci_low": 1.0,
-          "ci_high": 1.0,
-          "p": 0.8865
+          "hazard_ratio": 1.003,
+          "ci_low": 0.9479,
+          "ci_high": 1.0612,
+          "p": 0.9179
         },
         "financing_condition": {
-          "hazard_ratio": 1.1822,
-          "ci_low": 0.6526,
-          "ci_high": 2.1418,
-          "p": 0.5808
+          "hazard_ratio": 1.0988,
+          "ci_low": 0.669,
+          "ci_high": 1.8048,
+          "p": 0.7097
         },
         "hsr": {
-          "hazard_ratio": 1.2257,
-          "ci_low": 0.4559,
-          "ci_high": 3.2951,
-          "p": 0.6867
+          "hazard_ratio": 0.8709,
+          "ci_low": 0.4751,
+          "ci_high": 1.5965,
+          "p": 0.6549
         },
         "stated_premium_pct": {
-          "hazard_ratio": 0.9986,
-          "ci_low": 0.9904,
-          "ci_high": 1.0069,
-          "p": 0.7391
+          "hazard_ratio": 1.0,
+          "ci_low": 0.9936,
+          "ci_high": 1.0064,
+          "p": 0.9936
         }
       },
       "proportional_hazards_p": {
-        "break_fee_pct": 0.9852,
-        "financing_condition": 0.9836,
-        "hsr": 0.9135,
-        "stated_premium_pct": 0.6972
+        "break_fee_pct": 0.99,
+        "financing_condition": 0.485,
+        "hsr": 0.9877,
+        "stated_premium_pct": 0.8392
       }
     }
   },
@@ -127,40 +120,40 @@
       },
       "base_rate_train": 0.022,
       "base_rate_test": 0.0259,
-      "brier": 0.02476,
+      "brier": 0.02536,
       "brier_ci": {
-        "low": 0.019,
-        "high": 0.0316
+        "low": 0.0186,
+        "high": 0.0332
       },
       "brier_of_predicting_the_base_rate": 0.02521,
-      "brier_skill_score": 0.0178,
-      "ece": 0.0157,
+      "brier_skill_score": -0.006,
+      "ece": 0.0136,
       "calibration_curve": [
         {
-          "predicted": 0.0133,
-          "observed": 0.0175
+          "predicted": 0.0131,
+          "observed": 0.0235
         },
         {
-          "predicted": 0.0186,
-          "observed": 0.0236
+          "predicted": 0.0164,
+          "observed": 0.0234
         },
         {
-          "predicted": 0.0248,
-          "observed": 0.0059
+          "predicted": 0.02,
+          "observed": 0.0296
         },
         {
-          "predicted": 0.0319,
-          "observed": 0.0178
+          "predicted": 0.024,
+          "observed": 0.0382
         },
         {
-          "predicted": 0.1009,
-          "observed": 0.0647
+          "predicted": 0.0413,
+          "observed": 0.0147
         }
       ],
-      "auc": 0.6714,
+      "auc": 0.512,
       "auc_ci": {
-        "low": 0.568,
-        "high": 0.7597
+        "low": 0.4382,
+        "high": 0.5976
       },
       "expected_value": {
         "gain_on_completion": 3.0,
@@ -182,35 +175,35 @@
           },
           {
             "threshold": 0.01,
-            "deals_taken": 11,
-            "share_taken": 0.0065,
+            "deals_taken": 5,
+            "share_taken": 0.0029,
             "breaks_taken": 0,
             "ev_per_deal": 3.0,
-            "total": 33.0
+            "total": 15.0
           },
           {
             "threshold": 0.02,
-            "deals_taken": 608,
-            "share_taken": 0.3574,
-            "breaks_taken": 14,
-            "ev_per_deal": 2.4704,
-            "total": 1502.0
+            "deals_taken": 831,
+            "share_taken": 0.4885,
+            "breaks_taken": 17,
+            "ev_per_deal": 2.5295,
+            "total": 2102.0
           },
           {
             "threshold": 0.03,
-            "deals_taken": 1078,
-            "share_taken": 0.6337,
-            "breaks_taken": 16,
-            "ev_per_deal": 2.6586,
-            "total": 2866.0
+            "deals_taken": 1377,
+            "share_taken": 0.8095,
+            "breaks_taken": 39,
+            "ev_per_deal": 2.3486,
+            "total": 3234.0
           },
           {
             "threshold": 0.05,
-            "deals_taken": 1491,
-            "share_taken": 0.8765,
-            "breaks_taken": 22,
-            "ev_per_deal": 2.6606,
-            "total": 3967.0
+            "deals_taken": 1658,
+            "share_taken": 0.9747,
+            "breaks_taken": 43,
+            "ev_per_deal": 2.4035,
+            "total": 3985.0
           }
         ]
       },
@@ -230,40 +223,40 @@
       },
       "base_rate_train": 0.022,
       "base_rate_test": 0.0259,
-      "brier": 0.02426,
+      "brier": 0.02528,
       "brier_ci": {
         "low": 0.0186,
-        "high": 0.031
+        "high": 0.0331
       },
       "brier_of_predicting_the_base_rate": 0.02521,
-      "brier_skill_score": 0.038,
-      "ece": 0.0131,
+      "brier_skill_score": -0.0027,
+      "ece": 0.0053,
       "calibration_curve": [
         {
-          "predicted": 0.0115,
-          "observed": 0.008
+          "predicted": 0.0179,
+          "observed": 0.0205
         },
         {
-          "predicted": 0.0189,
-          "observed": 0.0274
+          "predicted": 0.023,
+          "observed": 0.0206
         },
         {
-          "predicted": 0.0236,
-          "observed": 0.012
+          "predicted": 0.0262,
+          "observed": 0.0323
         },
         {
-          "predicted": 0.0277,
-          "observed": 0.0069
+          "predicted": 0.0304,
+          "observed": 0.0265
         },
         {
-          "predicted": 0.0956,
-          "observed": 0.0746
+          "predicted": 0.0411,
+          "observed": 0.0294
         }
       ],
-      "auc": 0.6849,
+      "auc": 0.5175,
       "auc_ci": {
-        "low": 0.5835,
-        "high": 0.7714
+        "low": 0.4408,
+        "high": 0.5996
       },
       "expected_value": {
         "gain_on_completion": 3.0,
@@ -285,35 +278,33 @@
           },
           {
             "threshold": 0.01,
-            "deals_taken": 15,
-            "share_taken": 0.0088,
-            "breaks_taken": 0,
-            "ev_per_deal": 3.0,
-            "total": 45.0
+            "deals_taken": 0,
+            "ev_per_deal": null,
+            "total": 0.0
           },
           {
             "threshold": 0.02,
-            "deals_taken": 618,
-            "share_taken": 0.3633,
-            "breaks_taken": 12,
-            "ev_per_deal": 2.5534,
-            "total": 1578.0
+            "deals_taken": 267,
+            "share_taken": 0.157,
+            "breaks_taken": 6,
+            "ev_per_deal": 2.4831,
+            "total": 663.0
           },
           {
             "threshold": 0.03,
-            "deals_taken": 1269,
-            "share_taken": 0.746,
-            "breaks_taken": 19,
-            "ev_per_deal": 2.6556,
-            "total": 3370.0
+            "deals_taken": 1159,
+            "share_taken": 0.6814,
+            "breaks_taken": 30,
+            "ev_per_deal": 2.4047,
+            "total": 2787.0
           },
           {
             "threshold": 0.05,
-            "deals_taken": 1524,
-            "share_taken": 0.8959,
-            "breaks_taken": 22,
-            "ev_per_deal": 2.668,
-            "total": 4066.0
+            "deals_taken": 1668,
+            "share_taken": 0.9806,
+            "breaks_taken": 44,
+            "ev_per_deal": 2.3933,
+            "total": 3992.0
           }
         ]
       },
@@ -325,54 +316,83 @@
       "fitted": true,
       "n": 5207,
       "events": 121,
-      "parameters": 5,
-      "events_per_parameter": 24.2,
+      "parameters": 4,
+      "events_per_parameter": 30.2,
       "underpowered": false,
       "dropped_as_constant": [],
-      "pseudo_r_squared": 0.1226,
-      "llr_p": 0.0,
+      "pseudo_r_squared": 0.0209,
+      "llr_p": 2.4e-05,
       "odds_ratios": {
         "tender_offer_filing": {
-          "odds_ratio": 0.4698,
-          "ci_low": 0.2491,
-          "ci_high": 0.8862,
-          "p": 0.0197,
+          "odds_ratio": 0.3652,
+          "ci_low": 0.1955,
+          "ci_high": 0.6822,
+          "p": 0.0016,
           "crosses_one": false
         },
         "going_private": {
-          "odds_ratio": 0.5043,
-          "ci_low": 0.2792,
-          "ci_high": 0.9108,
-          "p": 0.0232,
+          "odds_ratio": 0.4937,
+          "ci_low": 0.2761,
+          "ci_high": 0.8829,
+          "p": 0.0173,
           "crosses_one": false
         },
         "shell": {
-          "odds_ratio": 0.151,
-          "ci_low": 0.0208,
-          "ci_high": 1.098,
-          "p": 0.0618,
+          "odds_ratio": 0.1397,
+          "ci_low": 0.0194,
+          "ci_high": 1.0057,
+          "p": 0.0507,
           "crosses_one": true
-        },
-        "listed": {
-          "odds_ratio": 11.3527,
-          "ci_low": 7.6938,
-          "ci_high": 16.7516,
-          "p": 0.0,
-          "crosses_one": false
         }
       },
       "carry_information": [
         "tender_offer_filing",
-        "going_private",
-        "listed"
+        "going_private"
       ],
-      "verdict": "3 of 4 terms have an odds ratio whose 95% interval excludes one."
+      "verdict": "2 of 3 terms have an odds ratio whose 95% interval excludes one."
     },
     "deal_terms": {
-      "fitted": false,
-      "reason": "maximum likelihood did not converge, which on this few events means separation",
-      "events": 12,
-      "n": 341
+      "fitted": true,
+      "n": 601,
+      "events": 14,
+      "parameters": 5,
+      "events_per_parameter": 2.8,
+      "underpowered": true,
+      "dropped_as_constant": [],
+      "pseudo_r_squared": 0.0146,
+      "llr_p": 0.747438,
+      "odds_ratios": {
+        "break_fee_pct": {
+          "odds_ratio": 1.0525,
+          "ci_low": 0.938,
+          "ci_high": 1.1809,
+          "p": 0.3838,
+          "crosses_one": true
+        },
+        "financing_condition": {
+          "odds_ratio": 1.8335,
+          "ci_low": 0.625,
+          "ci_high": 5.3786,
+          "p": 0.2696,
+          "crosses_one": true
+        },
+        "hsr": {
+          "odds_ratio": 0.7875,
+          "ci_low": 0.2122,
+          "ci_high": 2.9231,
+          "p": 0.7211,
+          "crosses_one": true
+        },
+        "stated_premium_pct": {
+          "odds_ratio": 1.0,
+          "ci_low": 0.9852,
+          "ci_high": 1.0151,
+          "p": 0.9985,
+          "crosses_one": true
+        }
+      },
+      "carry_information": [],
+      "verdict": "0 of 4 terms have an odds ratio whose 95% interval excludes one."
     }
   },
   "conformal": {
@@ -387,15 +407,15 @@
       "methods": [
         {
           "method": "marginal (MAPIE, LAC)",
-          "coverage": 0.8413,
+          "coverage": 0.893,
           "coverage_on_breaks": 0.0,
-          "coverage_on_completions": 0.8636,
+          "coverage_on_completions": 0.9167,
           "set_sizes": {
-            "empty": 0.1464,
-            "singleton": 0.8536,
+            "empty": 0.0829,
+            "singleton": 0.9171,
             "both_labels": 0.0
           },
-          "mean_set_size": 0.8536
+          "mean_set_size": 0.9171
         },
         {
           "method": "marginal, non-empty corrected",
@@ -411,15 +431,15 @@
         },
         {
           "method": "class-conditional",
-          "coverage": 0.7743,
-          "coverage_on_breaks": 1.0,
-          "coverage_on_completions": 0.7683,
+          "coverage": 0.8959,
+          "coverage_on_breaks": 0.8864,
+          "coverage_on_completions": 0.8962,
           "set_sizes": {
             "empty": 0.0,
-            "singleton": 0.2451,
-            "both_labels": 0.7549
+            "singleton": 0.2205,
+            "both_labels": 0.7795
           },
-          "mean_set_size": 1.7549
+          "mean_set_size": 1.7795
         }
       ],
       "finding": "Marginal coverage can be met while covering almost no breaks, because the population is almost entirely completions. The class-conditional thresholds are what make the promise mean something for the rare outcome."
@@ -435,15 +455,15 @@
       "methods": [
         {
           "method": "marginal (MAPIE, LAC)",
-          "coverage": 0.9046,
+          "coverage": 0.9087,
           "coverage_on_breaks": 0.0,
-          "coverage_on_completions": 0.9261,
+          "coverage_on_completions": 0.9303,
           "set_sizes": {
-            "empty": 0.0809,
-            "singleton": 0.9191,
+            "empty": 0.0721,
+            "singleton": 0.9279,
             "both_labels": 0.0
           },
-          "mean_set_size": 0.9191
+          "mean_set_size": 0.9279
         },
         {
           "method": "marginal, non-empty corrected",
@@ -459,15 +479,15 @@
         },
         {
           "method": "class-conditional",
-          "coverage": 0.9122,
-          "coverage_on_breaks": 0.925,
-          "coverage_on_completions": 0.9119,
+          "coverage": 0.9168,
+          "coverage_on_breaks": 0.975,
+          "coverage_on_completions": 0.9154,
           "set_sizes": {
             "empty": 0.0,
-            "singleton": 0.2507,
-            "both_labels": 0.7493
+            "singleton": 0.2344,
+            "both_labels": 0.7656
           },
-          "mean_set_size": 1.7493
+          "mean_set_size": 1.7656
         }
       ],
       "finding": "Marginal coverage can be met while covering almost no breaks, because the population is almost entirely completions. The class-conditional thresholds are what make the promise mean something for the rare outcome."

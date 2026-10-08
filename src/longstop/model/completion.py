@@ -34,7 +34,7 @@ GAIN_ON_COMPLETION = 3.0
 LOSS_ON_BREAK = 20.0
 
 NUMERIC = ["year", "break_fee_pct", "stated_premium_pct", "equity_value_usd"]
-BINARY = ["tender_offer_filing", "going_private", "shell", "listed", "has_terms",
+BINARY = ["tender_offer_filing", "going_private", "shell", "has_terms",
           "financing_condition", "hsr", "cfius"]
 CATEGORICAL = ["sector", "consideration"]
 

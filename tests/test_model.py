@@ -129,7 +129,7 @@ def test_inference_refuses_a_separated_fit():
 
 
 def test_inference_reports_whether_each_interval_crosses_one(frame):
-    result = inference.fit(frame, ["tender_offer_filing", "going_private", "shell", "listed"])
+    result = inference.fit(frame, ["tender_offer_filing", "going_private", "shell"])
     if not result["fitted"]:
         pytest.skip(result["reason"])
     for name, value in result["odds_ratios"].items():
@@ -153,3 +153,24 @@ def test_coverage_holds_when_the_data_is_actually_exchangeable(frame):
     conditional = next(m for m in result["methods"] if m["method"] == "class-conditional")
     assert conditional["coverage_on_completions"] >= 0.85
     assert conditional["coverage_on_breaks"] >= 0.80
+
+
+def test_current_listing_status_is_treated_as_leakage(frame):
+    # The submissions API reports a company's CURRENT tickers. An acquired target
+    # delisted and has none; one whose deal broke still trades. 39.7% of breaks
+    # carried a ticker against 5.1% of completions, and a logit given it reported
+    # an odds ratio of 11.4. It is the outcome wearing a disguise.
+    assert "listed" not in frame.columns
+    assert "tickers" not in frame.columns
+
+
+def test_implausible_break_fees_are_dropped_not_modelled(frame):
+    # A termination fee is one to four per cent of equity value. Half the
+    # computed values exceeded 100% and the largest was 3e14%, which is the
+    # extractor pairing a fee with the wrong number, not an unusual deal.
+    fees = frame.break_fee_pct.dropna()
+    if fees.empty:
+        pytest.skip("no break fees extracted")
+    assert fees.max() <= 20.0
+    assert fees.min() > 0
+    assert 1.0 < fees.median() < 8.0
