@@ -117,7 +117,10 @@ def extract_from_proxy(
         ref = primary_document(refs, "DEFM14A")
         if ref is None:
             return {"status": NO_DOCUMENT, "accession": accession}
-        text = document_text(client, episode["cik"], accession, ref.name)
+        # Not cached: half a megabyte each, read once, and five thousand of them
+        # is more than the disk has. The index.json above stays cached because it
+        # is small and saves a request on a re-run.
+        text = document_text(client, episode["cik"], accession, ref.name, store=False)
     except FetchError as exc:
         return {"status": FETCH_FAILED, "accession": accession, "error": str(exc)[:160]}
     if text is None:

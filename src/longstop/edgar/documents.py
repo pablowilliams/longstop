@@ -101,9 +101,18 @@ def filing_documents(client: EdgarClient, cik: int, accession: str) -> list[Docu
     return refs
 
 
-def document_text(client: EdgarClient, cik: int, accession: str, filename: str) -> str | None:
+def document_text(
+    client: EdgarClient, cik: int, accession: str, filename: str, store: bool = True
+) -> str | None:
+    """store=False reads the document without keeping it.
+
+    A merger proxy is around half a megabyte and is read exactly once, to pull a
+    handful of figures out of it. Caching five thousand of them filled the disk
+    and killed the extraction at deal 1,250. The extracted terms are what matters
+    and they are kept; the three hundred pages they came from are not.
+    """
     url = DOCUMENT.format(cik=cik, accession=no_dash(accession), filename=filename)
-    body = client.get(url, allow_404=True)
+    body = client.get(url, allow_404=True, store=store)
     if body is None:
         return None
     return to_text(body.decode("utf-8", errors="replace"))
