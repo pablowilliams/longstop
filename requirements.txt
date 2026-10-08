@@ -13,3 +13,19 @@ httpx2>=2.13
 
 # The social card is drawn from the summary so its figures cannot go stale.
 pillow>=10.0
+
+# Modelling. Each is here because a specific question needs it, not for show.
+# lifelines: deal outcomes are right censored and completion competes with
+#   termination, so a plain rate throws away every unresolved deal.
+# scikit-learn: calibration is the metric this project promised; accuracy on a
+#   two per cent base rate is meaningless.
+# statsmodels: "do the terms carry information" is an inference question and
+#   needs intervals on coefficients, which a classifier does not give.
+# mapie: distribution-free coverage, which is the honest way to attach
+#   uncertainty to about a hundred and twenty events.
+# pandas arrives as the interface lifelines and statsmodels expect.
+lifelines>=0.30
+scikit-learn>=1.5
+statsmodels>=0.14
+mapie>=1.0
+pandas>=2.0

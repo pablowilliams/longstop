@@ -1,7 +1,7 @@
 PY := python3
 export PYTHONPATH := src
 
-.PHONY: help setup test universe announcements outcomes breaks terms report site \
+.PHONY: help setup test universe announcements outcomes breaks terms report model site \
 	console-install console-build console-dev api clean
 
 help:
@@ -21,6 +21,9 @@ outcomes: ## stage two, label every deal from the target's later filings (needs 
 
 report: ## write results/universe.json
 	$(PY) -m longstop.cli universe report
+
+model: ## survival, calibration, inference and conformal coverage
+	$(PY) -m longstop.cli model fit
 
 site: ## build the static payload the dashboard reads
 	$(PY) -m longstop.cli site build

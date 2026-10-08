@@ -47,6 +47,11 @@ def main(argv: list[str] | None = None) -> int:
     extract.add_argument("--model", default=None, help="model id for --extractor model")
     terms_sub.add_parser("report", help="coverage and reconciliation, from what is extracted")
 
+    model = sub.add_parser("model", help="survival, calibration, inference and conformal coverage")
+    model_sub = model.add_subparsers(dest="stage", required=True)
+    fit_parser = model_sub.add_parser("fit", help="run every model and write results/model.json")
+    fit_parser.add_argument("--seed", type=int, default=0)
+
     site = sub.add_parser("site", help="build the static payload the dashboard reads")
     site_sub = site.add_subparsers(dest="stage", required=True)
     site_sub.add_parser("build", help="write console/public/data")
@@ -64,7 +69,14 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     try:
-        if args.command == "site":
+        if args.command == "model":
+            from longstop.model import report as model_report
+
+            payload = model_report.run(seed=args.seed)
+            path = model_report.write(payload)
+            print(model_report.render(payload))
+            print(f"\nwritten to {path}")
+        elif args.command == "site":
             from longstop.site import build_site_data
 
             print(json.dumps(build_site_data(), indent=2))
